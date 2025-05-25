@@ -1,4 +1,3 @@
 # NODE DEPENDENCIES
 /node_modules
 .env
-activities.txt
