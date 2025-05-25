@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
-import './Login.css';
-import logo from '../assets/logo.png';
+import './Auth.css';
+import logo from '../../assets/logo.png';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ function Login() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password,
         recaptchaToken
@@ -37,13 +37,13 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className="auth-container">
+      <div className="auth-card">
         <div className="logo-container">
-          <img src={logo} alt="Logo" className="login-logo" />
+          <img src={logo} alt="Chronoly" className="auth-logo" />
         </div>
         
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
           
           <div className="form-group">
@@ -72,7 +72,7 @@ function Login() {
             <Link to="/forgot-password">Forgot your password?</Link>
           </div>
 
-          <button type="submit" className="login-button">
+          <button type="submit" className="auth-button">
             Sign In
           </button>
 
