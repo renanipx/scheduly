@@ -1,7 +1,7 @@
 {
-  "name": "scheduly-backend",
+  "name": "chronoly-backend",
   "version": "1.0.0",
-  "description": "Backend for Scheduly application",
+  "description": "Backend for Chronoly application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "scheduly-backend": "file:"
+    "chronoly-backend": "file:"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

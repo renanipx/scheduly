@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import './Login.css';
 import logo from '../assets/logo.png';
 
-function Login() {
+function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -16,23 +16,23 @@ function Login() {
     e.preventDefault();
     setError('');
 
-    if (!recaptchaToken) {
-      setError('Please complete the reCAPTCHA verification');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post('http://localhost:5000/api/register', {
+        name,
         email,
-        password,
-        recaptchaToken
+        password
       });
 
-      if (response.data.message === 'Login successful') {
-        navigate('/dashboard');
+      if (response.data.message === 'Registration successful') {
+        navigate('/login');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
@@ -48,6 +48,17 @@ function Login() {
           
           <div className="form-group">
             <input
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="modern-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <input
               type="email"
               placeholder="Enter your email"
               value={email}
@@ -60,7 +71,7 @@ function Login() {
           <div className="form-group">
             <input
               type="password"
-              placeholder="Enter your password"
+              placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -68,16 +79,23 @@ function Login() {
             />
           </div>
 
-          <div className="forgot-password">
-            <Link to="/forgot-password">Forgot your password?</Link>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="modern-input"
+            />
           </div>
 
           <button type="submit" className="login-button">
-            Sign In
+            Create Account
           </button>
 
           <div className="auth-links">
-            Don't have an account? <Link to="/register">Create Account</Link>
+            Already have an account? <Link to="/login">Sign In</Link>
           </div>
         </form>
       </div>
@@ -85,4 +103,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Register; 

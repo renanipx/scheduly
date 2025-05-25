@@ -1,5 +1,5 @@
 {
-  "name": "scheduly-frontend",
+  "name": "chronoly-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -12,7 +12,7 @@
     "react-google-recaptcha": "^3.1.0",
     "react-router-dom": "^6.20.0",
     "react-scripts": "5.0.1",
-    "scheduly-frontend": "file:",
+    "chronoly-frontend": "file:",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
