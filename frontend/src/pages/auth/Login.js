@@ -15,7 +15,6 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (!recaptchaToken) {
       setError('Please complete the reCAPTCHA verification');
       return;

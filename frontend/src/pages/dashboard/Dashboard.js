@@ -6,7 +6,19 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // Debug log when component mounts
+  React.useEffect(() => {
+    console.log('Dashboard mounted');
+    // Verificar se o usuário está autenticado
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('No token found, redirecting to login');
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
+    console.log('Logging out...');
     localStorage.removeItem('token');
     navigate('/login');
   };

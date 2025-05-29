@@ -55,7 +55,7 @@ const Register = () => {
       });
 
       localStorage.setItem('token', response.data.token);
-      navigate('/dashboard');
+      // navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

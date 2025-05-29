@@ -5,7 +5,7 @@ const User = require('../models/User');
 async function setupDatabase() {
   try {
     console.log('Attempting to connect to MongoDB...');
-    console.log('MongoDB URI:', process.env.MONGODB_URI);
+    console.log('MongoDB URI:', process.env.MONGO_URI);
 
     await mongoose.connect('mongodb://127.0.0.1:27017/chronoly', {
       useNewUrlParser: true,
@@ -14,7 +14,7 @@ async function setupDatabase() {
     });
     console.log('Connected to MongoDB successfully');
 
-    // Listar todos os bancos de dados
+    // List all databases
     const adminDb = mongoose.connection.db.admin();
     const dbs = await adminDb.listDatabases();
     console.log('Available databases:', dbs.databases.map(db => db.name));
@@ -46,4 +46,4 @@ async function setupDatabase() {
   }
 }
 
-setupDatabase(); 
+setupDatabase();

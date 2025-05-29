@@ -1,9 +1,10 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-require('dotenv').config();
 const { verifyRecaptchaV2, verifyRecaptchaV3 } = require('./middleware/recaptcha');
 
 const app = express();
@@ -11,18 +12,20 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
 app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true
 }));
+
 
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   autoCreate: true
