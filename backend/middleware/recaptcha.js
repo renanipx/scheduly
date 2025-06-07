@@ -1,61 +1,41 @@
 const axios = require('axios');
 
-// Middleware for reCAPTCHA v2 verification
-const verifyRecaptchaV2 = async (req, res, next) => {
-  const { recaptchaToken } = req.body;
-
-  if (!recaptchaToken) {
-    return res.status(400).json({ message: 'reCAPTCHA token is required' });
-  }
-
+const verifyRecaptchaV3 = async (token) => {
   try {
     const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`
     );
-
+    
     if (!response.data.success) {
-      return res.status(400).json({ message: 'reCAPTCHA verification failed' });
+      return false;
     }
 
-    next();
+    const score = response.data.score;
+    return score >= 0.3;
   } catch (error) {
-    console.error('reCAPTCHA verification error:', error);
-    return res.status(500).json({ message: 'Error verifying reCAPTCHA' });
+    console.error('reCAPTCHA v3 verification error:', error);
+    return false;
   }
 };
 
-// Middleware for reCAPTCHA v3 verification
-const verifyRecaptchaV3 = async (req, res, next) => {
+// Middleware that only validates V3
+const verifyRecaptcha = async (req, res, next) => {
   const { recaptchaToken } = req.body;
 
   if (!recaptchaToken) {
     return res.status(400).json({ message: 'reCAPTCHA token is required' });
   }
 
-  try {
-    const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`
-    );
-
-    if (!response.data.success) {
-      return res.status(400).json({ message: 'reCAPTCHA verification failed' });
-    }
-
-    // For v3, we also check the score (0.0 to 1.0)
-    // You can adjust the threshold as needed
-    const score = response.data.score;
-    if (score < 0.5) {
-      return res.status(400).json({ message: 'reCAPTCHA score too low' });
-    }
-
-    next();
-  } catch (error) {
-    console.error('reCAPTCHA verification error:', error);
-    return res.status(500).json({ message: 'Error verifying reCAPTCHA' });
+  // Only validate V3
+  const v3Success = await verifyRecaptchaV3(recaptchaToken);
+  
+  if (v3Success) {
+    return next();
   }
+
+  return res.status(400).json({ message: 'reCAPTCHA verification failed' });
 };
 
 module.exports = {
-  verifyRecaptchaV2,
-  verifyRecaptchaV3
+  verifyRecaptcha
 }; 

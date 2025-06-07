@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
-const { verifyRecaptchaV2, verifyRecaptchaV3 } = require('./middleware/recaptcha');
+const { verifyRecaptcha } = require('./middleware/recaptcha');
 
 const app = express();
 
@@ -37,8 +37,8 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 
-// Login route with reCAPTCHA v2
-app.post('/api/login', verifyRecaptchaV2, async (req, res) => {
+// Login route with combined reCAPTCHA verification
+app.post('/api/login', verifyRecaptcha, async (req, res) => {
   const { email, password } = req.body;
 
   // Here you would typically:
@@ -50,10 +50,9 @@ app.post('/api/login', verifyRecaptchaV2, async (req, res) => {
   res.json({ message: 'Login successful' });
 });
 
-// Example route with reCAPTCHA v3
-app.post('/api/sensitive-action', verifyRecaptchaV3, async (req, res) => {
-  // This is an example of a sensitive action that uses reCAPTCHA v3
-  // The middleware will verify the score before allowing the action
+// Example route with combined reCAPTCHA verification
+app.post('/api/sensitive-action', verifyRecaptcha, async (req, res) => {
+  // This is an example of a sensitive action that uses the combined reCAPTCHA verification
   res.json({ message: 'Sensitive action completed successfully' });
 });
 
