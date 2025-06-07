@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
 import logo from '../../assets/logo.png';
@@ -7,11 +7,32 @@ import logo from '../../assets/logo.png';
 const ResetPassword = () => {
   const navigate = useNavigate();
   const { token } = useParams();
+  const location = useLocation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Verificar se estamos na rota correta
+    if (!location.pathname.includes('/reset-password/')) {
+      // Se não estiver na rota correta, redirecionar para a rota com hash
+      const tokenFromPath = location.pathname.split('/reset-password/')[1];
+      if (tokenFromPath) {
+        window.location.href = `/#/reset-password/${tokenFromPath}`;
+        return;
+      }
+    }
+
+    // Verificar se o token está presente
+    if (!token) {
+      setError('Invalid or missing reset token');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    }
+  }, [token, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

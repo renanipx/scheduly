@@ -13,8 +13,11 @@ const sendPasswordResetEmail = async (email, resetToken) => {
     throw new Error('Email credentials not configured. Please check EMAIL_USER and EMAIL_PASSWORD environment variables.');
   }
 
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
+  const resetUrl = `${baseUrl}/#/reset-password/${resetToken}`;
   
+  console.log('Reset URL:', resetUrl);
+
   const mailOptions = {
     from: `"Chronoly" <${process.env.EMAIL_USER}>`,
     to: email,
@@ -27,7 +30,8 @@ const sendPasswordResetEmail = async (email, resetToken) => {
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" 
              style="background-color: #764ba2; color: white; padding: 12px 24px; 
-                    text-decoration: none; border-radius: 5px; display: inline-block;">
+                    text-decoration: none; border-radius: 5px; display: inline-block;"
+             onclick="window.location.href='${resetUrl}'; return false;">
             Reset Password
           </a>
         </div>
