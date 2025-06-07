@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 // Register route
 router.post('/register', async (req, res) => {
@@ -119,9 +120,10 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    // TODO: Send email with reset link
-    // For now, just return the token
-    res.json({ message: 'Password reset email sent', resetToken });
+    // Send reset email
+    await sendPasswordResetEmail(email, resetToken);
+
+    res.json({ message: 'Password reset email sent successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to process request', error: error.message });
   }

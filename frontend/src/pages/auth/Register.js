@@ -54,8 +54,7 @@ const Register = () => {
         password: formData.password
       });
 
-      localStorage.setItem('token', response.data.token);
-      // navigate('/dashboard');
+      navigate('/login', { state: { email: formData.email } });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

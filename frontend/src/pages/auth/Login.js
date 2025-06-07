@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import './Auth.css';
 import logo from '../../assets/logo.png';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(useLocation().state?.email || '');
   const [password, setPassword] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState(null);
   const [error, setError] = useState('');
