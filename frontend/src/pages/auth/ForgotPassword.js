@@ -46,7 +46,7 @@ const ForgotPassword = () => {
           <img src={logo} alt="Chronoly" className="auth-logo" />
         </div>
 
-        <h2>Reset Password</h2>
+        <h2 className="auth-title forgot-password-title">Reset Password</h2>
         <p style={{ textAlign: 'center', marginBottom: '20px', color: '#4a5568' }}>
           Enter your email address and we'll send you instructions to reset your password.
         </p>

@@ -76,7 +76,7 @@ const Register = () => {
           <img src={logo} alt="Chronoly" className="auth-logo" />
         </div>
 
-        <h2>Create Account</h2>
+        <h2 className="auth-title register-title">Create Account</h2>
         {error && <div className="error-message">{error}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
