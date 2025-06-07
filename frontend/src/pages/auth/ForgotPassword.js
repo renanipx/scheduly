@@ -23,7 +23,7 @@ const ForgotPassword = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      await axios.post(process.env.REACT_APP_RECAPTCHA_BACKEND + 'forgot-password', { email });
       setSuccess('Password reset instructions have been sent to your email');
       setEmail('');
     } catch (err) {
