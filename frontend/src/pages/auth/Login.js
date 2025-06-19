@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import './Auth.css';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.svg';
 
 function Login() {
   const [email, setEmail] = useState(useLocation().state?.email || '');
@@ -115,6 +115,22 @@ function Login() {
 
         <h2 className="auth-title login-title">Sign In</h2>
         {error && <div className="error-message">{error}</div>}
+
+        <div className="social-login-container">
+          <button
+            type="button"
+            className="google-login-button"
+            onClick={() => {
+              window.location.href = `${process.env.REACT_APP_BACKEND_URL}/api/auth/google`;
+            }}
+          >
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" style={{ width: 20, marginRight: 8 }} />
+            Entrar com Google
+          </button>
+          <div className="separator">
+            <span>ou</span>
+          </div>
+        </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">

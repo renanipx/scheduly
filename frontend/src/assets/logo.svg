@@ -1,0 +1,23 @@
+<svg width="380" height="80" viewBox="0 0 380 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cGradient" x1="0" y1="40" x2="80" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a18cd1"/>
+      <stop offset="1" stop-color="#fbc2eb"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path d="M60,20
+             A30,30 0 1,0 60,60"
+          stroke="url(#cGradient)" stroke-width="8" fill="none"/>
+    <path d="M50,26
+             A22,22 0 1,0 50,54"
+          stroke="#b993d6" stroke-width="4" fill="none"/>
+    <path d="M42,32
+             A14,14 0 1,0 42,48"
+          stroke="#764ba2" stroke-width="2" fill="none"/>
+  </g>
+  <!-- Texto centralizado verticalmente e com espaçamento -->
+  <text x="100" y="54" font-family="Montserrat, Arial, sans-serif" font-size="40" fill="#764ba2" font-weight="bold" letter-spacing="4">
+    CHRONOLY
+  </text>
+</svg>

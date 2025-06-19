@@ -82,21 +82,26 @@ router.post('/login', async (req, res) => {
 
 // Google OAuth routes
 router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/api/auth/google/failure', session: false }),
   (req, res) => {
-    // Generate JWT
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d'
     });
 
-    // Redirect to frontend with token
+    if (req.query.json === 'true') {
+      return res.json({ token });
+    }
     res.redirect(`${process.env.FRONTEND_URL}/auth/google?token=${token}`);
   }
 );
+
+router.get('/google/failure', (req, res) => {
+  res.status(401).json({ error: 'Falha na autenticação com Google.' });
+});
 
 // Forgot password route
 router.post('/forgot-password', async (req, res) => {

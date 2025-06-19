@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.svg';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
