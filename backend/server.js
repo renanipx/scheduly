@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -20,6 +21,16 @@ app.use(session({
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Global limit: 100 requests per 15 minutes per IP
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit of 100 requests
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+// Apply the rate limiter globally
+app.use(limiter);
 
 // Routes
 const authRoutes = require('./routes/auth');
