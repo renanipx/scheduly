@@ -41,6 +41,8 @@ const recaptchaRoutes = require('./routes/recaptcha');
 app.use('/api/auth', authRoutes);
 app.use('/api/recaptcha', recaptchaRoutes);
 app.use('/api/users', require('./routes/users'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/calendar', require('./routes/calendar'));
 
 // MongoDB Connection with options
 mongoose.connect(process.env.MONGO_URI, {

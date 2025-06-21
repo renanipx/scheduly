@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
+import Calendar from './Calendar';
+import Tasks from './Tasks';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,18 +57,6 @@ const Dashboard = () => {
               <a href="#tasks">
                 <i className="fas fa-tasks"></i>
                 {isSidebarOpen && <span>Tasks</span>}
-              </a>
-            </li>
-            <li>
-              <a href="#projects">
-                <i className="fas fa-project-diagram"></i>
-                {isSidebarOpen && <span>Projects</span>}
-              </a>
-            </li>
-            <li>
-              <a href="#team">
-                <i className="fas fa-users"></i>
-                {isSidebarOpen && <span>Team</span>}
               </a>
             </li>
             <li>
@@ -152,50 +142,10 @@ const Dashboard = () => {
 
           <div className="dashboard-grid">
             <div className="dashboard-card">
-              <h2>Recent Tasks</h2>
-              <div className="task-list">
-                <div className="task-item">
-                  <input type="checkbox" id="task1" />
-                  <label htmlFor="task1">Complete project proposal</label>
-                  <span className="task-date">Today</span>
-                </div>
-                <div className="task-item">
-                  <input type="checkbox" id="task2" />
-                  <label htmlFor="task2">Review team updates</label>
-                  <span className="task-date">Tomorrow</span>
-                </div>
-                <div className="task-item">
-                  <input type="checkbox" id="task3" />
-                  <label htmlFor="task3">Schedule client meeting</label>
-                  <span className="task-date">Next Week</span>
-                </div>
-              </div>
+              <Tasks />
             </div>
-
             <div className="dashboard-card">
-              <h2>Upcoming Events</h2>
-              <div className="event-list">
-                <div className="event-item">
-                  <div className="event-date">
-                    <span className="day">15</span>
-                    <span className="month">Mar</span>
-                  </div>
-                  <div className="event-details">
-                    <h4>Team Meeting</h4>
-                    <p>10:00 AM - 11:00 AM</p>
-                  </div>
-                </div>
-                <div className="event-item">
-                  <div className="event-date">
-                    <span className="day">16</span>
-                    <span className="month">Mar</span>
-                  </div>
-                  <div className="event-details">
-                    <h4>Client Presentation</h4>
-                    <p>2:00 PM - 3:30 PM</p>
-                  </div>
-                </div>
-              </div>
+              <Calendar />
             </div>
           </div>
         </div>
