@@ -133,10 +133,10 @@ function Login() {
             }}
           >
             <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" style={{ width: 20, marginRight: 8 }} />
-            Entrar com Google
+            Sign in with Google
           </button>
           <div className="separator">
-            <span>ou</span>
+            <span>or</span>
           </div>
         </div>
 
