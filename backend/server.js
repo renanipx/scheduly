@@ -7,6 +7,9 @@ const passport = require('passport');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 
+// Import Passport configuration
+require('./config/passport');
+
 const app = express();
 
 // Middleware

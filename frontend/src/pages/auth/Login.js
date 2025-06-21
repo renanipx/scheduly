@@ -14,6 +14,14 @@ function Login() {
   const [isV3Available, setIsV3Available] = useState(false);
   const [isV2Checked, setIsV2Checked] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle errors from GoogleAuthHandler
+  useEffect(() => {
+    if (location.state?.error) {
+      setError(location.state.error);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const loadRecaptchaScript = () => {

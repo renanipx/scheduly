@@ -88,14 +88,25 @@ router.get('/google',
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/api/auth/google/failure', session: false }),
   (req, res) => {
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d'
-    });
+    try {
+      
+      const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+        expiresIn: '1d'
+      });
 
-    if (req.query.json === 'true') {
-      return res.json({ token });
+
+      if (req.query.json === 'true') {
+        return res.json({ token });
+      }
+
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const redirectUrl = `${frontendUrl}/#/auth/google?token=${token}`;
+      
+      res.redirect(redirectUrl);
+    } catch (error) {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/#/auth/google?error=authentication_failed`);
     }
-    res.redirect(`${process.env.FRONTEND_URL}/auth/google?token=${token}`);
   }
 );
 

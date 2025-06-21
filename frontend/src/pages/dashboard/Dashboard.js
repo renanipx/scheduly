@@ -7,11 +7,14 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Debug log when component mounts
-  React.useEffect(() => {
+  React.useEffect(() => {    
+    
     // Verificar se o usuário está autenticado
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const token = localStorage.getItem('token');    
+    
+    if (!token) {    
       navigate('/login');
+      return;
     }
   }, [navigate]);
 
