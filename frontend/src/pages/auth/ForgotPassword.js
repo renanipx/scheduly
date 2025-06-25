@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import './Auth.css';
+import '../../assets/Auth.css';
 import logo from '../../assets/logo.svg';
 
 const ForgotPassword = () => {

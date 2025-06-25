@@ -6,7 +6,9 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/dashboard/Dashboard';
 import GoogleAuthHandler from './pages/auth/GoogleAuthHandler';
-import './App.css';
+import Tasks from './pages/dashboard/Tasks';
+import DashboardLayout from './pages/dashboard/DashboardLayout';
+import './assets/App.css';
 
 function App() {
   return (
@@ -17,8 +19,9 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
           <Route path="/auth/google" element={<GoogleAuthHandler />} />
+          <Route path="/tasks" element={<DashboardLayout><Tasks /></DashboardLayout>} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
-import './Auth.css';
+import '../../assets/Auth.css';
 import logo from '../../assets/logo.svg';
 
 function Login() {
