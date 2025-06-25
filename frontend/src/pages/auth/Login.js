@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import '../../assets/Auth.css';
-import logo from '../../assets/logo.svg';
+import logo from '../../assets/images/logo.svg';
 
 function Login() {
   const [email, setEmail] = useState(useLocation().state?.email || '');

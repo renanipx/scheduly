@@ -36,7 +36,7 @@ const DashboardLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <img src="/logo.svg" alt="Chronoly" className="sidebar-logo" />
+          <img src={require('../../assets/images/logo.svg').default} alt="Chronoly" className="sidebar-logo" />
           <button 
             className="toggle-sidebar"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../../assets/Auth.css';
-import logo from '../../assets/logo.svg';
+import logo from '../../assets/images/logo.svg';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
