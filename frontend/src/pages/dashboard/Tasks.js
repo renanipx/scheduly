@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../../assets/Dashboard.css';
+import '../../assets/Tasks.css';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([
