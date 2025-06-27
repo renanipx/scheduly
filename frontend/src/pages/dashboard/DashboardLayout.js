@@ -4,7 +4,6 @@ import '../../assets/Dashboard.css';
 
 const menuItems = [
   { name: 'Dashboard', icon: 'fas fa-home', path: '/dashboard' },
-  { name: 'Calendar', icon: 'fas fa-calendar', path: '/calendar' },
   { name: 'Tasks', icon: 'fas fa-tasks', path: '/tasks' },
   { name: 'Settings', icon: 'fas fa-cog', path: '/settings' },
 ];
