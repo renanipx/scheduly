@@ -4,6 +4,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import axios from 'axios';
 import '../../assets/Auth.css';
 import logo from '../../assets/images/logo.svg';
+import { useUser } from '../../context/UserContext';
 
 function Login() {
   const [email, setEmail] = useState(useLocation().state?.email || '');
@@ -15,6 +16,7 @@ function Login() {
   const [isV2Checked, setIsV2Checked] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { setUser } = useUser();
 
   // Handle errors from GoogleAuthHandler
   useEffect(() => {
@@ -99,6 +101,10 @@ function Login() {
 
       if (response.data.message === 'Login successful') {
         localStorage.setItem('token', response.data.token);
+        const userRes = await axios.get(process.env.REACT_APP_BACKEND_URL + '/api/users/profile', {
+          headers: { Authorization: `Bearer ${response.data.token}` }
+        });
+        setUser(userRes.data);
         navigate('/dashboard');
       }
     } catch (err) {

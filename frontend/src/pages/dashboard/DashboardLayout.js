@@ -36,7 +36,7 @@ const DashboardLayout = ({ children }) => {
       <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <img src={require('../../assets/images/logo.svg').default} alt="Chronoly" className="sidebar-logo" />
-          <button 
+          <button
             className="toggle-sidebar"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
@@ -66,24 +66,7 @@ const DashboardLayout = ({ children }) => {
           </button>
         </div>
       </aside>
-      {/* Main Content */}
       <main className="main-content">
-        <header className="dashboard-header">
-          <div className="header-search">
-            <i className="fas fa-search"></i>
-            <input type="text" placeholder="Search..." />
-          </div>
-          <div className="header-actions">
-            <button className="notification-button">
-              <i className="fas fa-bell"></i>
-              <span className="notification-badge">3</span>
-            </button>
-            <div className="user-profile">
-              <img src="/default-avatar.png" alt="User" />
-              <span>John Doe</span>
-            </div>
-          </div>
-        </header>
         <div className="dashboard-content">
           {children}
         </div>

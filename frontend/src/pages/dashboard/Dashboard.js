@@ -1,49 +1,110 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Calendar from './Calendar';
 import '../../assets/Dashboard.css';
+import { useUser } from '../../context/UserContext';
+import axios from 'axios';
 
 const Dashboard = () => {
+  const { user } = useUser();
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(process.env.REACT_APP_BACKEND_URL + '/api/tasks', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTasks(response.data);
+      } catch (err) {
+        setTasks([]);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  // Helper to check if a task is overdue (same as calendar)
+  function isTaskOverdue(task) {
+    if (task.status === 'Completed') return false;
+    let year, month, day;
+    if (task.date.includes('T')) {
+      const d = new Date(task.date);
+      year = d.getUTCFullYear();
+      month = d.getUTCMonth() + 1;
+      day = d.getUTCDate();
+    } else {
+      [year, month, day] = task.date.split('-').map(Number);
+    }
+    let taskEnd = new Date(year, month - 1, day);
+    if (task.endTime) {
+      const [endHour, endMinute] = task.endTime.split(':').map(Number);
+      taskEnd.setHours(endHour, endMinute, 0, 0);
+    } else {
+      taskEnd.setHours(23, 59, 59, 999);
+    }
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const taskDay = new Date(year, month - 1, day);
+    taskDay.setHours(0,0,0,0);
+
+    if (taskDay < today) {
+      return true;
+    } else if (taskDay.getTime() === today.getTime()) {
+      if (now > taskEnd) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Calculate stats
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.status === 'Completed').length;
+  const inProgressTasks = tasks.filter(t => t.status === 'In Progress').length;
+  const pendingTasks = tasks.filter(t => t.status === 'Pending').length;
+  const overdueTasks = tasks.filter(isTaskOverdue).length;
+
   return (
     <>
       <div className="welcome-section">
-        <h1>Welcome back, John!</h1>
+        <h1>Welcome back, {user?.name || user?.username || 'User'}!</h1>
         <p>Here's what's happening with your projects today.</p>
       </div>
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <i className="fas fa-tasks"></i>
-          </div>
+        <div className="stat-card total">
+          <div className="stat-icon"><i className="fas fa-list-alt"></i></div>
           <div className="stat-info">
             <h3>Total Tasks</h3>
-            <p>24</p>
+            <p>{totalTasks}</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <i className="fas fa-calendar-check"></i>
-          </div>
+        <div className="stat-card completed">
+          <div className="stat-icon"><i className="fas fa-check-circle"></i></div>
           <div className="stat-info">
             <h3>Completed</h3>
-            <p>12</p>
+            <p>{completedTasks}</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <i className="fas fa-clock"></i>
-          </div>
+        <div className="stat-card inprogress">
+          <div className="stat-icon"><i className="fas fa-spinner"></i></div>
           <div className="stat-info">
             <h3>In Progress</h3>
-            <p>8</p>
+            <p>{inProgressTasks}</p>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <i className="fas fa-exclamation-circle"></i>
-          </div>
+        <div className="stat-card pending">
+          <div className="stat-icon"><i className="fas fa-hourglass-half"></i></div>
           <div className="stat-info">
             <h3>Pending</h3>
-            <p>4</p>
+            <p>{pendingTasks}</p>
+          </div>
+        </div>
+        <div className="stat-card overdue">
+          <div className="stat-icon"><i className="fas fa-exclamation-triangle"></i></div>
+          <div className="stat-info">
+            <h3>Overdue</h3>
+            <p>{overdueTasks}</p>
           </div>
         </div>
       </div>
