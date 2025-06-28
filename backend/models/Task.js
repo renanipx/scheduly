@@ -6,6 +6,8 @@ const TaskSchema = new mongoose.Schema({
   date: { type: Date },
   status: { type: String, required: true },
   observation: { type: String },
+  startTime: { type: String },
+  endTime: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 

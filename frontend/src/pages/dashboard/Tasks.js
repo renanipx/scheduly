@@ -33,6 +33,13 @@ const Tasks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate if end time is after start time
+    if (startTime && endTime && startTime >= endTime) {
+      setError('End time must be after start time.');
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
@@ -205,10 +212,23 @@ const Tasks = () => {
               tasks.map(task => (
                 <div className="task-card" key={task.id} style={{ maxWidth: 420, margin: '0 auto' }}>
                   <div className="task-card-title">{task.title}</div>
-                  <div className="task-card-date" style={{ marginBottom: 4 }}>{formatDate(task.date)}</div>
+
+                  <div style={{ marginBottom: 8 }}>
+                    <div className="task-card-date">{formatDate(task.date)}</div>
+                    {task.startTime && task.endTime && (
+                      <div className="task-card-time" style={{ fontSize: '0.9rem', color: '#666' }}>
+                        <span>🕐 {task.startTime} - {task.endTime}</span>
+                        <span style={{ marginLeft: 8, color: '#888' }}>
+                          ({calculateTotalHours(task.startTime, task.endTime)})
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="task-card-row">
                     <span className="task-card-status">{task.status}</span>
                   </div>
+
                   <div>{task.description}</div>
                   {task.observation && (
                     <div className="task-card-observation">{task.observation}</div>
