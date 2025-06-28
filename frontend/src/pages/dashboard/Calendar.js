@@ -115,19 +115,35 @@ const Calendar = () => {
 
   // Filter tasks for a specific day and time
   const getTasksForTimeSlot = (day, timeSlot) => {
-    const dayStr = day.toISOString().slice(0, 10);
     const hour = parseInt(timeSlot.split(':')[0]);
-    
+    const slotStartMinutes = hour * 60;
+    const slotEndMinutes = slotStartMinutes + 60;
+
+    const isSameDay = (d1, d2) =>
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate();
+
     return tasks.filter(task => {
-      const taskDate = new Date(task.date).toISOString().slice(0, 10);
-      if (taskDate !== dayStr) return false;
-      
+      let taskDateObj;
+      if (typeof task.date === 'string' && task.date.includes('T')) {
+        // ISO format: use UTC to get the correct day
+        const d = new Date(task.date);
+        taskDateObj = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      } else if (typeof task.date === 'string') {
+        // 'YYYY-MM-DD'
+        const [year, month, dayNum] = task.date.split('-').map(Number);
+        taskDateObj = new Date(year, month - 1, dayNum);
+      } else {
+        taskDateObj = new Date(task.date);
+      }
+      if (!isSameDay(taskDateObj, day)) return false;
       if (!task.startTime || !task.endTime) return false;
-      
-      const taskStartHour = parseInt(task.startTime.split(':')[0]);
-      const taskEndHour = parseInt(task.endTime.split(':')[0]);
-      
-      return taskStartHour <= hour && taskEndHour > hour;
+      const [startH, startM] = task.startTime.split(':').map(Number);
+      const [endH, endM] = task.endTime.split(':').map(Number);
+      const taskStartMinutes = startH * 60 + startM;
+      const taskEndMinutes = endH * 60 + endM;
+      return taskStartMinutes < slotEndMinutes && taskEndMinutes > slotStartMinutes;
     });
   };
 
@@ -251,9 +267,13 @@ const Calendar = () => {
                 return <div key={timeSlot} className="time-cell" style={{ minHeight: 40 }}></div>;
               }
               const tasksForSlot = getTasksForTimeSlot(day, timeSlot);
+              const taskCount = tasksForSlot.length;
+              const gap = 4; // px
+              const totalGap = gap * (taskCount - 1);
+              const widthPercent = `calc(${100 / taskCount}% - ${(totalGap / taskCount).toFixed(2)}px)`;
               return (
-                <div key={timeSlot} className="time-cell" style={{ minHeight: 40, verticalAlign: 'top', paddingTop: 0, paddingBottom: 0 }}>
-                  {tasksForSlot.map(task => {
+                <div key={timeSlot} className="time-cell" style={{ minHeight: 40, verticalAlign: 'top', paddingTop: 0, paddingBottom: 0, position: 'relative' }}>
+                  {tasksForSlot.map((task, i) => {
                     const shortTitle = task.title.length > 50 ? task.title.slice(0, 50) + '...' : task.title;
                     return (
                       <div 
@@ -261,7 +281,16 @@ const Calendar = () => {
                         className="task-item"
                         style={{ 
                           backgroundColor: getTaskColor(task),
-                          borderLeft: `4px solid ${getTaskColor(task)}`
+                          borderLeft: `4px solid ${getTaskColor(task)}`,
+                          width: widthPercent,
+                          left: `calc(${(100 / taskCount) * i}% + ${i * gap}px)`,
+                          position: 'absolute',
+                          top: 0,
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          zIndex: 1
                         }}
                         title={task.title}
                       >
