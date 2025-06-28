@@ -74,7 +74,20 @@ const Tasks = () => {
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
+    let year, month, day;
+    if (dateStr.includes('T')) {
+      // ISO format: use UTC to get the correct day
+      const d = new Date(dateStr);
+      year = d.getUTCFullYear();
+      month = d.getUTCMonth() + 1;
+      day = d.getUTCDate();
+    } else {
+      // 'YYYY-MM-DD'
+      [year, month, day] = dateStr.split('-').map(Number);
+    }
+    // Always show as local string, but with correct day
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
