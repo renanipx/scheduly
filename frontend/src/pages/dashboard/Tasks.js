@@ -263,8 +263,7 @@ const Tasks = () => {
                   <tr>
                     <th className="col-title">Title</th>
                     <th className="col-date">Date</th>
-                    <th className="col-start">Start</th>
-                    <th className="col-end">End</th>
+                    <th className="col-time">Start/End</th>
                     <th className="col-status">Status</th>
                     <th className="col-overdue">Overdue</th>
                     <th className="col-actions">Actions</th>
@@ -273,10 +272,9 @@ const Tasks = () => {
                 <tbody>
                   {tasks.map(task => (
                     <tr key={task.id}>
-                      <td className="col-title">{task.title && task.title.length > 50 ? task.title.slice(0, 50) + '...' : task.title}</td>
+                      <td className="col-title">{task.title && task.title.length > 100 ? task.title.slice(0, 100) + '...' : task.title}</td>
                       <td className="col-date">{formatDate(task.date)}</td>
-                      <td className="col-start">{task.startTime}</td>
-                      <td className="col-end">{task.endTime}</td>
+                      <td className="col-time">{task.startTime} - {task.endTime}</td>
                       <td className="col-status">
                         <span className={`status-badge status-badge--${task.status.replace(/ /g, '').toLowerCase()}`}>{task.status}</span>
                       </td>

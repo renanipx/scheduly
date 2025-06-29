@@ -327,19 +327,33 @@
 .tasks-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 540px;
-  table-layout: fixed;
+  /* table-layout: fixed; */ /* Changed to auto for better column fit */
 }
 .tasks-table th,
 .tasks-table td {
   vertical-align: middle;
   padding: 8px 6px;
+  text-align: center;
+}
+.tasks-table th.col-title,
+.tasks-table td.col-title,
+.tasks-table th.col-date,
+.tasks-table td.col-date,
+.tasks-table th.col-time,
+.tasks-table td.col-time,
+.tasks-table th.col-status,
+.tasks-table td.col-status,
+.tasks-table th.col-overdue,
+.tasks-table td.col-overdue,
+.tasks-table th.col-actions,
+.tasks-table td.col-actions {
+  text-align: center;
 }
 .tasks-table th.col-title,
 .tasks-table td.col-title {
-  text-align: left;
-  width: 29%;
-  font-weight: 600;
+  width: 10%;
+  max-width: 80px;
+  border-right: 2px solid #f0f0f0;
   color: #222;
   white-space: nowrap;
   overflow: hidden;
@@ -349,30 +363,33 @@
 .tasks-table td.col-date {
   text-align: left;
   width: 16%;
-  color: #555;
+  min-width: 110px;
+  border-right: 2px solid #f0f0f0;
 }
-.tasks-table th.col-start,
-.tasks-table td.col-start,
-.tasks-table th.col-end,
-.tasks-table td.col-end {
-  text-align: left;
-  width: 12%;
-  color: #555;
+.tasks-table th.col-time,
+.tasks-table td.col-time {
+  width: 16%;
+  min-width: 110px;
+  text-align: center;
+  border-right: 2px solid #f0f0f0;
 }
 .tasks-table th.col-status,
 .tasks-table td.col-status {
   text-align: left;
   width: 9%;
+  border-right: 2px solid #f0f0f0;
 }
 .tasks-table th.col-overdue,
 .tasks-table td.col-overdue {
   text-align: center;
   width: 8%;
+  border-right: 2px solid #f0f0f0;
 }
 .tasks-table th.col-actions,
 .tasks-table td.col-actions {
   text-align: center;
   width: 8%;
+  border-right: none;
 }
 .tasks-table tbody tr {
   border-bottom: 1px solid #e0e7ff;
@@ -386,7 +403,6 @@
   min-width: 60px;
   text-align: center;
   border-radius: 8px;
-  font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   padding: 2px 8px;
@@ -397,7 +413,6 @@
   min-width: 36px;
   text-align: center;
   border-radius: 8px;
-  font-weight: 600;
   font-size: 0.92rem;
   padding: 2px 8px;
 }
@@ -405,16 +420,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 .tasks-table td.col-actions button {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 0;
+  font-size: 0.95rem;
+  padding: 0 1px;
   display: flex;
   align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.tasks-table td.col-actions button:hover {
+  color: #667eea;
+  background: #f0f4ff;
+  border-radius: 4px;
+}
+.tasks-table th.col-actions,
+.tasks-table td.col-actions {
+  min-width: unset;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 @media (max-width: 900px) {
@@ -477,4 +504,20 @@
 .status-badge--default {
   background: #888;
   color: #fff;
+}
+
+.tasks-table th {
+  background: #f5f7ff;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 1.04rem;
+  font-weight: 700;
+  color: #222;
+  border-bottom: 2px solid #e0e7ff;
+}
+
+.tasks-table td {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #222;
 }
