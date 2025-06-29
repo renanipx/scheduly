@@ -34,6 +34,12 @@ const Tasks = () => {
     e.preventDefault();
     setError('');
 
+    // Validate required fields
+    if (!title || !date || !startTime || !endTime || !status) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
     // Validate if end time is after start time
     if (startTime && endTime && startTime >= endTime) {
       setError('End time must be after start time.');
@@ -229,7 +235,6 @@ const Tasks = () => {
 
             <button
               type="submit"
-              disabled={!title || !date || !startTime || !endTime || !status}
               className="task-form-submit"
             >
               <span className="task-form-submit-icon">+</span> Create Task

@@ -31,6 +31,13 @@
   margin: 0;
 }
 
+.tasks-panels-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100vh;
+}
+
 .task-form-container {
   flex: 1 1 380px;
   margin: 1%;
@@ -40,7 +47,7 @@
   align-items: flex-start;
   justify-content: flex-end;
   padding: 0;
-  height: 100%;
+  height: auto;
 }
 
 .task-form {
@@ -60,6 +67,10 @@
   flex-direction: column;
   gap: 24px;
   justify-content: flex-start;
+  height: auto;
+  min-height: 0;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 .task-list-filters {
@@ -361,7 +372,6 @@
 }
 .tasks-table th.col-date,
 .tasks-table td.col-date {
-  text-align: left;
   width: 16%;
   min-width: 110px;
   border-right: 2px solid #f0f0f0;
@@ -375,7 +385,6 @@
 }
 .tasks-table th.col-status,
 .tasks-table td.col-status {
-  text-align: left;
   width: 9%;
   border-right: 2px solid #f0f0f0;
 }
