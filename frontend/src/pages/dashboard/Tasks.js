@@ -102,6 +102,35 @@ const Tasks = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
 
+  // Quick summary of tasks
+  const summary = tasks.reduce(
+    (acc, t) => {
+      const isOverdue = t.status !== 'Completed' && new Date(t.date) < new Date();
+      acc.total++;
+      if (t.status === 'Pending') acc.pending++;
+      if (t.status === 'In Progress') acc.inProgress++;
+      if (t.status === 'Completed') acc.completed++;
+      if (isOverdue) acc.overdue++;
+      return acc;
+    },
+    { total: 0, pending: 0, inProgress: 0, completed: 0, overdue: 0 }
+  );
+
+  // Function to get the color of the status badge
+  function getStatusColor(status) {
+    switch (status) {
+      case 'Completed': return '#4caf50'; 
+      case 'In Progress': return '#ff9800'; 
+      case 'Pending': return '#2196f3'; 
+      default: return '#888';
+    }
+  }
+
+  // Function to check if the task is overdue
+  function isOverdue(task) {
+    return task.status !== 'Completed' && new Date(task.date) < new Date();
+  }
+
   return (
     <div className="tasks-component full-screen-tasks with-list">
       <div className="tasks-panels-row" style={{ display: 'flex', width: '100%', height: '100%' }}>
@@ -110,9 +139,9 @@ const Tasks = () => {
             <h2>Tasks</h2>
             <p className="task-subtitle">Add a new task to organize your day.</p>
 
-            <div style={{ display: 'flex', gap: 12, marginBottom: 18, alignItems: 'flex-end', width: '100%' }}>
-              <div style={{ flex: 1, width: '100%' }}>
-                <label htmlFor="task-title" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2, lineHeight: 1.2 }}>Task Title *</label>
+            <div className="task-form-row">
+              <div className="task-form-col">
+                <label htmlFor="task-title" className="task-form-label">Task Title *</label>
                 <input
                   id="task-title"
                   type="text"
@@ -120,17 +149,17 @@ const Tasks = () => {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   required
-                  style={{ marginBottom: 0, width: '100%', height: 44, fontSize: '0.98rem', padding: '8px 12px' }}
+                  className="task-form-input"
                 />
               </div>
-              <div style={{ flex: 1, width: '100%' }}>
-                <label htmlFor="status" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2, lineHeight: 1.2 }}>Status *</label>
+              <div className="task-form-col">
+                <label htmlFor="status" className="task-form-label">Status *</label>
                 <select
                   id="status"
                   value={status}
                   onChange={e => setStatus(e.target.value)}
                   required
-                  style={{ marginBottom: 0, width: '100%', height: 44, fontSize: '0.98rem', padding: '8px 12px' }}
+                  className="task-form-input"
                 >
                   <option value="Pending">Pending</option>
                   <option value="In Progress">In Progress</option>
@@ -139,9 +168,9 @@ const Tasks = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, marginBottom: 18, width: '100%' }}>
-              <div style={{ flex: 1, width: '100%' }}>
-                <label htmlFor="task-date" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2 }}>Date *</label>
+            <div className="task-form-row">
+              <div className="task-form-col">
+                <label htmlFor="task-date" className="task-form-label">Date *</label>
                 <input
                   id="task-date"
                   type="date"
@@ -149,11 +178,11 @@ const Tasks = () => {
                   value={date}
                   onChange={e => setDate(e.target.value)}
                   required
-                  style={{ width: '100%', marginBottom: 0, height: 44, fontSize: '0.98rem', padding: '8px 12px' }}
+                  className="task-form-input"
                 />
               </div>
-              <div style={{ flex: 1, width: '100%' }}>
-                <label htmlFor="start-time" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2 }}>Start Time *</label>
+              <div className="task-form-col">
+                <label htmlFor="start-time" className="task-form-label">Start Time *</label>
                 <input
                   id="start-time"
                   type="time"
@@ -161,11 +190,11 @@ const Tasks = () => {
                   value={startTime}
                   onChange={e => setStartTime(e.target.value)}
                   required
-                  style={{ width: '100%', marginBottom: 0, height: 44, fontSize: '0.98rem', padding: '8px 8px' }}
+                  className="task-form-input"
                 />
               </div>
-              <div style={{ flex: 1, width: '100%' }}>
-                <label htmlFor="end-time" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2 }}>End Time *</label>
+              <div className="task-form-col">
+                <label htmlFor="end-time" className="task-form-label">End Time *</label>
                 <input
                   id="end-time"
                   type="time"
@@ -173,41 +202,48 @@ const Tasks = () => {
                   value={endTime}
                   onChange={e => setEndTime(e.target.value)}
                   required
-                  style={{ width: '100%', marginBottom: 0, height: 44, fontSize: '0.98rem', padding: '8px 8px' }}
+                  className="task-form-input"
                 />
               </div>
             </div>
 
-            <label htmlFor="task-desc" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2 }}>Description</label>
+            <label htmlFor="task-desc" className="task-form-label">Description</label>
             <textarea
               id="task-desc"
               placeholder="Describe the task (optional)"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              style={{ marginBottom: 10, width: '100%', fontSize: '0.98rem', padding: '8px 12px', height: 90, resize: 'vertical' }}
+              className="task-form-textarea"
             />
 
-            <label htmlFor="observation" style={{ display: 'block', textAlign: 'left', fontWeight: 500, color: '#555', marginBottom: 2 }}>Observation</label>
+            <label htmlFor="observation" className="task-form-label">Observation</label>
             <textarea
               id="observation"
               placeholder="Any additional notes (optional)"
               value={observation}
               onChange={e => setObservation(e.target.value)}
-              style={{ marginBottom: 16, width: '100%', fontSize: '0.98rem', padding: '8px 12px', height: 60, resize: 'vertical' }}
+              className="task-form-textarea"
             />
 
-            {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+            {error && <div className="task-form-error">{error}</div>}
 
             <button
               type="submit"
               disabled={!title || !date || !startTime || !endTime || !status}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              className="task-form-submit"
             >
-              <span style={{ fontSize: 18, fontWeight: 600 }}>+</span> Create Task
+              <span className="task-form-submit-icon">+</span> Create Task
             </button>
           </form>
         </div>
         <div className="task-list-panel">
+          <div className="task-summary-bar">
+            <span>Tasks: {summary.total}</span>
+            <span>Pending: {summary.pending}</span>
+            <span>In Progress: {summary.inProgress}</span>
+            <span>Completed: {summary.completed}</span>
+            <span className="overdue-summary">Overdue: {summary.overdue}</span>
+          </div>
           <div className="task-list-filters">
             <input type="text" placeholder="Search by task name..." className="task-filter-input" />
             <input type="date" className="task-filter-input" />
@@ -218,36 +254,50 @@ const Tasks = () => {
               <option value="Completed">Completed</option>
             </select>
           </div>
-          <div className="task-list-scroll" style={{ maxWidth: 420, margin: '0 auto' }}>
+          <div className="task-list-scroll">
             {tasks.length === 0 ? (
               <div className="no-tasks-message">No tasks found.</div>
             ) : (
-              tasks.map(task => (
-                <div className="task-card" key={task.id} style={{ maxWidth: 420, margin: '0 auto' }}>
-                  <div className="task-card-title">{task.title}</div>
-
-                  <div style={{ marginBottom: 8 }}>
-                    <div className="task-card-date">{formatDate(task.date)}</div>
-                    {task.startTime && task.endTime && (
-                      <div className="task-card-time" style={{ fontSize: '0.9rem', color: '#666' }}>
-                        <span>🕐 {task.startTime} - {task.endTime}</span>
-                        <span style={{ marginLeft: 8, color: '#888' }}>
-                          ({calculateTotalHours(task.startTime, task.endTime)})
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="task-card-row">
-                    <span className="task-card-status">{task.status}</span>
-                  </div>
-
-                  <div>{task.description}</div>
-                  {task.observation && (
-                    <div className="task-card-observation">{task.observation}</div>
-                  )}
-                </div>
-              ))
+              <table className="tasks-table">
+                <thead>
+                  <tr>
+                    <th className="col-title">Title</th>
+                    <th className="col-date">Date</th>
+                    <th className="col-start">Start</th>
+                    <th className="col-end">End</th>
+                    <th className="col-status">Status</th>
+                    <th className="col-overdue">Overdue</th>
+                    <th className="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tasks.map(task => (
+                    <tr key={task.id}>
+                      <td className="col-title">{task.title && task.title.length > 50 ? task.title.slice(0, 50) + '...' : task.title}</td>
+                      <td className="col-date">{formatDate(task.date)}</td>
+                      <td className="col-start">{task.startTime}</td>
+                      <td className="col-end">{task.endTime}</td>
+                      <td className="col-status">
+                        <span className={`status-badge status-badge--${task.status.replace(/ /g, '').toLowerCase()}`}>{task.status}</span>
+                      </td>
+                      <td className="col-overdue">
+                        {isOverdue(task) ? (
+                          <span className="overdue-badge">Yes</span>
+                        ) : (
+                          <span className="not-overdue-badge">No</span>
+                        )}
+                      </td>
+                      <td className="col-actions">
+                        <div className="action-btns">
+                          <button title="Edit" className="edit-btn">✏️</button>
+                          <button title="Delete" className="delete-btn">🗑️</button>
+                          <button title="Complete" className="complete-btn">✔️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
