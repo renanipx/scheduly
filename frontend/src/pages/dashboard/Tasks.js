@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../../assets/Dashboard.css';
 import '../../assets/Tasks.css';
@@ -14,6 +14,8 @@ const Tasks = () => {
   const today = new Date().toISOString().slice(0, 10);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const formContainerRef = useRef(null);
+  const [formHeight, setFormHeight] = useState(0);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -29,6 +31,37 @@ const Tasks = () => {
     };
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    function updateFormHeight() {
+      if (formContainerRef.current) {
+        setFormHeight(formContainerRef.current.offsetHeight);
+      }
+    }
+    updateFormHeight();
+
+    // Usar ResizeObserver para detectar mudanças de tamanho
+    let observer = null;
+    if (formContainerRef.current && 'ResizeObserver' in window) {
+      observer = new ResizeObserver(() => {
+        updateFormHeight();
+      });
+      observer.observe(formContainerRef.current);
+    }
+
+    window.addEventListener('resize', updateFormHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateFormHeight);
+      if (observer && formContainerRef.current) {
+        observer.unobserve(formContainerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('Altura do formulário (atualizada):', formHeight);
+  }, [formHeight]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,7 +173,7 @@ const Tasks = () => {
   return (
     <div className="tasks-component full-screen-tasks with-list">
       <div className="tasks-panels-row" style={{ display: 'flex', width: '100%', height: '100%' }}>
-        <div className="task-form-container" style={{ maxWidth: 420, width: '100%' }}>
+        <div className="task-form-container" ref={formContainerRef} style={{ maxWidth: 420, width: '100%' }}>
           <form onSubmit={handleSubmit} className="task-form">
             <h2>Tasks</h2>
             <p className="task-subtitle">Add a new task to organize your day.</p>
@@ -241,13 +274,45 @@ const Tasks = () => {
             </button>
           </form>
         </div>
-        <div className="task-list-panel">
-          <div className="task-summary-bar">
-            <span>Tasks: {summary.total}</span>
-            <span>Pending: {summary.pending}</span>
-            <span>In Progress: {summary.inProgress}</span>
-            <span>Completed: {summary.completed}</span>
-            <span className="overdue-summary">Overdue: {summary.overdue}</span>
+        <div className="task-list-panel"
+        style={{ maxHeight: formHeight ? `${formHeight}px` : undefined, overflowY: "auto" }}
+        >
+          <div className="stats-grid" style={{ marginBottom: '18px', marginTop: '0', width: '100%' }}>
+            <div className="stat-card total">
+              <div className="stat-icon"><i className="fas fa-list-alt"></i></div>
+              <div className="stat-info">
+                <h3>Total Tasks</h3>
+                <p>{summary.total}</p>
+              </div>
+            </div>
+            <div className="stat-card completed">
+              <div className="stat-icon"><i className="fas fa-check-circle"></i></div>
+              <div className="stat-info">
+                <h3>Completed</h3>
+                <p>{summary.completed}</p>
+              </div>
+            </div>
+            <div className="stat-card inprogress">
+              <div className="stat-icon"><i className="fas fa-spinner"></i></div>
+              <div className="stat-info">
+                <h3>In Progress</h3>
+                <p>{summary.inProgress}</p>
+              </div>
+            </div>
+            <div className="stat-card pending">
+              <div className="stat-icon"><i className="fas fa-hourglass-half"></i></div>
+              <div className="stat-info">
+                <h3>Pending</h3>
+                <p>{summary.pending}</p>
+              </div>
+            </div>
+            <div className="stat-card overdue">
+              <div className="stat-icon"><i className="fas fa-exclamation-triangle"></i></div>
+              <div className="stat-info">
+                <h3>Overdue</h3>
+                <p>{summary.overdue}</p>
+              </div>
+            </div>
           </div>
           <div className="task-list-filters">
             <input type="text" placeholder="Search by task name..." className="task-filter-input" />
@@ -259,7 +324,10 @@ const Tasks = () => {
               <option value="Completed">Completed</option>
             </select>
           </div>
-          <div className="task-list-scroll">
+          <div
+            className="task-list-scroll"
+            
+          >
             {tasks.length === 0 ? (
               <div className="no-tasks-message">No tasks found.</div>
             ) : (
