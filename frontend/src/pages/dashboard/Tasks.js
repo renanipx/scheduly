@@ -146,10 +146,15 @@ const Tasks = () => {
     (acc, t) => {
       const isOverdue = t.status !== 'Completed' && new Date(t.date) < new Date();
       acc.total++;
-      if (t.status === 'Pending') acc.pending++;
-      if (t.status === 'In Progress') acc.inProgress++;
-      if (t.status === 'Completed') acc.completed++;
-      if (isOverdue) acc.overdue++;
+      if (isOverdue) {
+        acc.overdue++;
+      } else if (t.status === 'Pending') {
+        acc.pending++;
+      } else if (t.status === 'In Progress') {
+        acc.inProgress++;
+      } else if (t.status === 'Completed') {
+        acc.completed++;
+      }
       return acc;
     },
     { total: 0, pending: 0, inProgress: 0, completed: 0, overdue: 0 }
@@ -158,9 +163,9 @@ const Tasks = () => {
   // Function to get the color of the status badge
   function getStatusColor(status) {
     switch (status) {
-      case 'Completed': return '#4caf50'; 
-      case 'In Progress': return '#ff9800'; 
-      case 'Pending': return '#2196f3'; 
+      case 'Completed': return '#4caf50';
+      case 'In Progress': return '#ff9800';
+      case 'Pending': return '#2196f3';
       default: return '#888';
     }
   }
@@ -169,6 +174,8 @@ const Tasks = () => {
   function isOverdue(task) {
     return task.status !== 'Completed' && new Date(task.date) < new Date();
   }
+
+  const sortedTasks = [...tasks].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
     <div className="tasks-component full-screen-tasks with-list">
@@ -275,7 +282,7 @@ const Tasks = () => {
           </form>
         </div>
         <div className="task-list-panel"
-        style={{ maxHeight: formHeight ? `${formHeight}px` : undefined, overflowY: "auto" }}
+          style={{ maxHeight: formHeight ? `${formHeight}px` : undefined, overflowY: "auto" }}
         >
           <div className="stats-grid" style={{ marginBottom: '18px', marginTop: '0', width: '100%' }}>
             <div className="stat-card total">
@@ -324,11 +331,30 @@ const Tasks = () => {
               <option value="Completed">Completed</option>
             </select>
           </div>
+
+          <div className="status-legend">
+            <span className="status-legend-item">
+              <span className="status-legend-color status-legend-pending"></span>
+              Pending
+            </span>
+            <span className="status-legend-item">
+              <span className="status-legend-color status-legend-inprogress"></span>
+              In Progress
+            </span>
+            <span className="status-legend-item">
+              <span className="status-legend-color status-legend-completed"></span>
+              Completed
+            </span>
+            <span className="status-legend-item">
+              <span className="status-legend-color status-legend-overdue"></span>
+              Overdue
+            </span>
+          </div>
           <div
             className="task-list-scroll"
-            
+
           >
-            {tasks.length === 0 ? (
+            {sortedTasks.length === 0 ? (
               <div className="no-tasks-message">No tasks found.</div>
             ) : (
               <table className="tasks-table">
@@ -343,7 +369,7 @@ const Tasks = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tasks.map(task => (
+                  {sortedTasks.map(task => (
                     <tr key={task.id}>
                       <td className="col-title">{task.title && task.title.length > 100 ? task.title.slice(0, 100) + '...' : task.title}</td>
                       <td className="col-date">{formatDate(task.date)}</td>

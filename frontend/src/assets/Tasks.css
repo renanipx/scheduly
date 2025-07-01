@@ -515,6 +515,9 @@
 }
 
 .tasks-table th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   background: #f5f7ff;
   font-family: 'Inter', Arial, sans-serif;
   font-size: 1.04rem;
@@ -529,3 +532,35 @@
   font-weight: 500;
   color: #222;
 }
+
+.status-legend {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 15px;
+  margin-left: 8px;
+  margin-top: -2%;
+  justify-content: center;
+  top: 0;
+  z-index: 2;
+  background: #f4f7ff;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.status-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-legend-color {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 2px;
+  border: 1px solid #e2e8f0;
+}
+.status-legend-pending { background: #2196f3; }
+.status-legend-inprogress { background: #ff9800; }
+.status-legend-completed { background: #4caf50; }
+.status-legend-overdue { background: #fca5a5; }

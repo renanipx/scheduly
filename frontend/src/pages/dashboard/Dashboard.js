@@ -59,11 +59,20 @@ const Dashboard = () => {
   }
 
   // Calculate stats
+  let completedTasks = 0, inProgressTasks = 0, pendingTasks = 0, overdueTasks = 0;
+  tasks.forEach(t => {
+    const isOverdue = isTaskOverdue(t);
+    if (isOverdue) {
+      overdueTasks++;
+    } else if (t.status === 'Pending') {
+      pendingTasks++;
+    } else if (t.status === 'In Progress') {
+      inProgressTasks++;
+    } else if (t.status === 'Completed') {
+      completedTasks++;
+    }
+  });
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'Completed').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'In Progress').length;
-  const pendingTasks = tasks.filter(t => t.status === 'Pending').length;
-  const overdueTasks = tasks.filter(isTaskOverdue).length;
 
   return (
     <>

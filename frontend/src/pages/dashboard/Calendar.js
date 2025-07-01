@@ -3,10 +3,10 @@ import axios from 'axios';
 import '../../assets/Calendar.css';
 
 const STATUS_COLORS = {
-  'Completed': '#14532d', 
-  'Pending': '#facc15',   
-  'In Progress': '#4ade80', 
-  'Overdue': '#f87171', // soft red for better contrast
+  'Completed': '#4caf50',
+  'Pending': '#2196f3',
+  'In Progress': '#ff9800',
+  'Overdue': '#fca5a5',
 };
 
 function getStatusColor(status) {
@@ -218,20 +218,20 @@ const Calendar = () => {
               Today
             </button>
             <div className="calendar-legend">
-              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 10 }}>
-                <span style={{ width: 14, height: 14, borderRadius: '3px', background: STATUS_COLORS['Pending'], display: 'inline-block', marginRight: 4, border: '1px solid #e5e7eb' }}></span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-color calendar-legend-pending"></span>
                 Pending
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 10 }}>
-                <span style={{ width: 14, height: 14, borderRadius: '3px', background: STATUS_COLORS['In Progress'], display: 'inline-block', marginRight: 4, border: '1px solid #e5e7eb' }}></span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-color calendar-legend-inprogress"></span>
                 In Progress
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 10 }}>
-                <span style={{ width: 14, height: 14, borderRadius: '3px', background: STATUS_COLORS['Completed'], display: 'inline-block', marginRight: 4, border: '1px solid #e5e7eb' }}></span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-color calendar-legend-completed"></span>
                 Completed
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: 0 }}>
-                <span style={{ width: 14, height: 14, borderRadius: '3px', background: STATUS_COLORS['Overdue'], display: 'inline-block', marginRight: 4, border: '1px solid #e5e7eb' }}></span>
+              <span className="calendar-legend-item">
+                <span className="calendar-legend-color calendar-legend-overdue"></span>
                 Overdue
               </span>
             </div>

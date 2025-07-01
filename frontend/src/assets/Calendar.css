@@ -269,10 +269,25 @@
   font-weight: 500;
 }
 
-.calendar-legend span {
-  font-size: 0.95rem;
-  color: #374151;
+.calendar-legend-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
 }
+
+.calendar-legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 4px;
+  border: 1px solid #e5e7eb;
+  display: inline-block;
+}
+
+.calendar-legend-pending { background: #2196f3; }
+.calendar-legend-inprogress { background: #ff9800; }
+.calendar-legend-completed { background: #4caf50; }
+.calendar-legend-overdue { background: #fca5a5; }
 
 .time-cell {
   background: white;

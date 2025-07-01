@@ -249,11 +249,11 @@
   }
   
   .stat-card.total .stat-icon { color: #64748b; }
-  .stat-card.completed .stat-icon { color: #22c55e; }
-  .stat-card.inprogress .stat-icon { color: #2563eb; }
-  .stat-card.pending .stat-icon { color: #facc15; }
-  .stat-card.overdue .stat-icon { color: #f87171; }
-  .stat-card.overdue { background: #fef2f2; }
+  .stat-card.completed .stat-icon { color: #4caf50; }
+  .stat-card.inprogress .stat-icon { color: #ff9800; }
+  .stat-card.pending .stat-icon { color: #2196f3; }
+  .stat-card.overdue .stat-icon { color: #fca5a5; }
+  .stat-card.overdue { background: #fca5a5; }
   
   .stat-card .stat-info h3 {
     margin: 0 0 4px 0;
