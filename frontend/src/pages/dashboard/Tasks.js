@@ -168,6 +168,7 @@ const Tasks = () => {
     return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
+  // Function to calculate total hours
   function calculateTotalHours(start, end) {
     if (!start || !end) return '';
     const [startH, startM] = start.split(':').map(Number);
