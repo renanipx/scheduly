@@ -564,3 +564,8 @@
 .status-legend-inprogress { background: #ff9800; }
 .status-legend-completed { background: #4caf50; }
 .status-legend-overdue { background: #fca5a5; }
+
+.selected-task-row {
+  background-color: #a3bffa !important;
+  transition: background 0.2s;
+}

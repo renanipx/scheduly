@@ -16,21 +16,30 @@ const Tasks = () => {
   const [endTime, setEndTime] = useState('');
   const formContainerRef = useRef(null);
   const [formHeight, setFormHeight] = useState(0);
+  const [filterTitle, setFilterTitle] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(process.env.REACT_APP_BACKEND_URL + '/api/tasks', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const params = new URLSearchParams();
+        if (filterTitle) params.append('title', filterTitle);
+        if (filterDate) params.append('date', filterDate);
+        if (filterStatus) params.append('status', filterStatus);
+        const response = await axios.get(
+          process.env.REACT_APP_BACKEND_URL + '/api/tasks?' + params.toString(),
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setTasks(response.data);
       } catch (err) {
         setError('Error fetching tasks.');
       }
     };
     fetchTasks();
-  }, []);
+  }, [filterTitle, filterDate, filterStatus]);
 
   useEffect(() => {
     function updateFormHeight() {
@@ -177,6 +186,17 @@ const Tasks = () => {
 
   const sortedTasks = [...tasks].sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  const handleSelectTask = (task) => {
+    setSelectedTask(task);
+    setTitle(task.title || '');
+    setDescription(task.description || '');
+    setDate(task.date || '');
+    setStatus(task.status || 'Pending');
+    setObservation(task.observation || '');
+    setStartTime(task.startTime || '');
+    setEndTime(task.endTime || '');
+  };
+
   return (
     <div className="tasks-component full-screen-tasks with-list">
       <div className="tasks-panels-row" style={{ display: 'flex', width: '100%', height: '100%' }}>
@@ -322,9 +342,24 @@ const Tasks = () => {
             </div>
           </div>
           <div className="task-list-filters">
-            <input type="text" placeholder="Search by task name..." className="task-filter-input" />
-            <input type="date" className="task-filter-input" />
-            <select className="task-filter-input">
+            <input
+              type="text"
+              placeholder="Search by task name..."
+              className="task-filter-input"
+              value={filterTitle}
+              onChange={e => setFilterTitle(e.target.value)}
+            />
+            <input
+              type="date"
+              className="task-filter-input"
+              value={filterDate}
+              onChange={e => setFilterDate(e.target.value)}
+            />
+            <select
+              className="task-filter-input"
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+            >
               <option value="">All Status</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
@@ -370,7 +405,12 @@ const Tasks = () => {
                 </thead>
                 <tbody>
                   {sortedTasks.map(task => (
-                    <tr key={task.id}>
+                    <tr
+                      key={task._id}
+                      onClick={() => handleSelectTask(task)}
+                      className={selectedTask && selectedTask._id === task._id ? 'selected-task-row' : ''}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <td className="col-title">{task.title && task.title.length > 100 ? task.title.slice(0, 100) + '...' : task.title}</td>
                       <td className="col-date">{formatDate(task.date)}</td>
                       <td className="col-time">{task.startTime} - {task.endTime}</td>

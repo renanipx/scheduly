@@ -9,7 +9,20 @@ const authenticate = passport.authenticate('jwt', { session: false });
 // List tasks for the authenticated user
 router.get('/', authenticate, async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user._id });
+    const { title, date, status } = req.query;
+    const filter = { user: req.user._id };
+
+    if (title) {
+      filter.title = { $regex: title, $options: 'i' };
+    }
+    if (date) {
+      filter.date = date;
+    }
+    if (status) {
+      filter.status = status;
+    }
+
+    const tasks = await Task.find(filter);
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: 'Error fetching tasks' });
