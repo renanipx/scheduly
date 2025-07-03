@@ -569,3 +569,105 @@
   background-color: #a3bffa !important;
   transition: background 0.2s;
 }
+
+.task-form-cancel {
+  background: #fff !important;
+  color: #3c366b !important;
+  border: 1.5px solid #5a67d8;
+  border-radius: 4px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  text-shadow: none;
+}
+.task-form-cancel:hover,
+.task-form-cancel:focus,
+.task-form-cancel:active {
+  background: #f3f3fd !important;
+  color: #2d237c !important;
+  border-color: #434190;
+}
+
+.task-form-submit {
+  background: #a3bffa !important;
+  color: #3c366b !important;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 24px;
+  box-shadow: 0 1px 4px 0 rgba(90,103,216,0.08);
+  transition: background 0.2s, color 0.2s;
+}
+.task-form-submit:hover,
+.task-form-submit:focus {
+  background: #7f9cf5 !important;
+  color: #22223b !important;
+}
+
+.delete-confirm-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.delete-confirm-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 28px 32px;
+  box-shadow: 0 8px 32px 0 rgba(90,103,216,0.18), 0 1.5px 8px 0 #a3bffa33;
+  min-width: 340px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.delete-confirm-content p {
+  font-size: 1.12rem;
+  color: #3c366b;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+.delete-confirm-content .delete-btn,
+.delete-confirm-content .task-form-cancel {
+  min-width: 120px;
+  padding: 10px 0;
+  font-size: 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  margin: 0 8px;
+  box-shadow: none;
+}
+.delete-confirm-content .delete-btn {
+  background: #ede9fe;
+  color: #5a67d8;
+  border: 1.5px solid #a3bffa;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.delete-confirm-content .delete-btn:hover {
+  background: #c3dafe;
+  color: #3c366b;
+  border-color: #7f9cf5;
+}
+.delete-confirm-content .task-form-cancel {
+  background: #fff;
+  color: #5a67d8;
+  border: 1.5px solid #5a67d8;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.delete-confirm-content .task-form-cancel:hover {
+  background: #f3f3fd;
+  color: #3c366b;
+  border-color: #434190;
+}
+.delete-confirm-content .delete-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}

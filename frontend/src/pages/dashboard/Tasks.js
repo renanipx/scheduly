@@ -20,6 +20,9 @@ const Tasks = () => {
   const [filterDate, setFilterDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -68,10 +71,6 @@ const Tasks = () => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log('Altura do formulário (atualizada):', formHeight);
-  }, [formHeight]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -90,24 +89,52 @@ const Tasks = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        process.env.REACT_APP_BACKEND_URL + '/api/tasks',
-        {
-          title,
-          description,
-          date,
-          status,
-          observation,
-          startTime,
-          endTime
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+      if (isEditing && selectedTask) {
+        // Atualizar tarefa existente
+        const response = await axios.put(
+          `${process.env.REACT_APP_BACKEND_URL}/api/tasks/${selectedTask._id}`,
+          {
+            title,
+            description,
+            date,
+            status,
+            observation,
+            startTime,
+            endTime
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }
-      );
-      setTasks([...tasks, response.data]);
+        );
+        setTasks(tasks =>
+          tasks.map(t => t._id === selectedTask._id ? response.data : t)
+        );
+        setSelectedTask(response.data);
+        setIsEditing(false);
+      } else {
+        // Criar nova tarefa
+        const response = await axios.post(
+          process.env.REACT_APP_BACKEND_URL + '/api/tasks',
+          {
+            title,
+            description,
+            date,
+            status,
+            observation,
+            startTime,
+            endTime
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        setTasks([...tasks, response.data]);
+      }
+      // Limpar formulário após salvar/criar
       setTitle('');
       setDescription('');
       setDate('');
@@ -115,8 +142,10 @@ const Tasks = () => {
       setObservation('');
       setStartTime('');
       setEndTime('');
+      setSelectedTask(null);
+      setIsEditing(false);
     } catch (err) {
-      setError('Error creating task.');
+      setError(isEditing ? 'Error updating task.' : 'Error creating task.');
     }
   };
 
@@ -190,11 +219,107 @@ const Tasks = () => {
     setSelectedTask(task);
     setTitle(task.title || '');
     setDescription(task.description || '');
-    setDate(task.date || '');
+    let dateValue = '';
+    if (task.date) {
+      if (task.date.length >= 10) {
+        dateValue = task.date.slice(0, 10);
+      }
+    }
+    setDate(dateValue);
     setStatus(task.status || 'Pending');
     setObservation(task.observation || '');
     setStartTime(task.startTime || '');
     setEndTime(task.endTime || '');
+  };
+
+  const handleEdit = (task) => {
+    setSelectedTask(task);
+    setIsEditing(true);
+    setTitle(task.title || '');
+    setDescription(task.description || '');
+    let dateValue = '';
+    if (task.date) {
+      if (task.date.length >= 10) {
+        dateValue = task.date.slice(0, 10);
+      }
+    }
+    setDate(dateValue);
+    setStatus(task.status || 'Pending');
+    setObservation(task.observation || '');
+    setStartTime(task.startTime || '');
+    setEndTime(task.endTime || '');
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setSelectedTask(null);
+    setTitle('');
+    setDescription('');
+    setDate('');
+    setStatus('Pending');
+    setObservation('');
+    setStartTime('');
+    setEndTime('');
+  };
+
+  const handleComplete = async (task) => {
+    setSelectedTask(task);
+    if (!task || task.status === 'Completed') return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/tasks/${task._id}`,
+        { ...task, status: 'Completed' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTasks(tasks =>
+        tasks.map(t => t._id === task._id ? { ...t, status: 'Completed' } : t)
+      );
+      setSelectedTask({ ...task, status: 'Completed' });
+    } catch (err) {
+      setError('Error completing task.');
+    }
+  };
+
+  const askDeleteTask = (task) => {
+    setTaskToDelete(task);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteTask = async () => {
+    if (!taskToDelete) return;
+    setShowDeleteConfirm(false);
+    setTaskToDelete(null);
+    await handleDelete(taskToDelete);
+  };
+
+  const cancelDeleteTask = () => {
+    setShowDeleteConfirm(false);
+    setTaskToDelete(null);
+  };
+
+  const handleDelete = async (task) => {
+    setSelectedTask(task);
+    if (!task) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/api/tasks/${task._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setTasks(tasks => tasks.filter(t => t._id !== task._id));
+      setSelectedTask(null);
+      setIsEditing(false);
+      setTitle('');
+      setDescription('');
+      setDate('');
+      setStatus('Pending');
+      setObservation('');
+      setStartTime('');
+      setEndTime('');
+    } catch (err) {
+      setError('Error deleting task.');
+    }
   };
 
   return (
@@ -216,6 +341,7 @@ const Tasks = () => {
                   onChange={e => setTitle(e.target.value)}
                   required
                   className="task-form-input"
+                  disabled={!isEditing && selectedTask}
                 />
               </div>
               <div className="task-form-col">
@@ -226,6 +352,7 @@ const Tasks = () => {
                   onChange={e => setStatus(e.target.value)}
                   required
                   className="task-form-input"
+                  disabled={!isEditing && selectedTask}
                 >
                   <option value="Pending">Pending</option>
                   <option value="In Progress">In Progress</option>
@@ -245,6 +372,7 @@ const Tasks = () => {
                   onChange={e => setDate(e.target.value)}
                   required
                   className="task-form-input"
+                  disabled={!isEditing && selectedTask}
                 />
               </div>
               <div className="task-form-col">
@@ -257,6 +385,7 @@ const Tasks = () => {
                   onChange={e => setStartTime(e.target.value)}
                   required
                   className="task-form-input"
+                  disabled={!isEditing && selectedTask}
                 />
               </div>
               <div className="task-form-col">
@@ -269,6 +398,7 @@ const Tasks = () => {
                   onChange={e => setEndTime(e.target.value)}
                   required
                   className="task-form-input"
+                  disabled={!isEditing && selectedTask}
                 />
               </div>
             </div>
@@ -280,6 +410,7 @@ const Tasks = () => {
               value={description}
               onChange={e => setDescription(e.target.value)}
               className="task-form-textarea"
+              disabled={!isEditing && selectedTask}
             />
 
             <label htmlFor="observation" className="task-form-label">Observation</label>
@@ -289,16 +420,56 @@ const Tasks = () => {
               value={observation}
               onChange={e => setObservation(e.target.value)}
               className="task-form-textarea"
+              disabled={!isEditing && selectedTask}
             />
 
             {error && <div className="task-form-error">{error}</div>}
 
-            <button
-              type="submit"
-              className="task-form-submit"
-            >
-              <span className="task-form-submit-icon">+</span> Create Task
-            </button>
+            {/* Botões do formulário organizados em flex, com lógica para cada estado */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              {isEditing ? (
+                <>
+                  <button
+                    type="button"
+                    className="task-form-cancel"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="task-form-submit"
+                  >
+                    <span className="task-form-submit-icon">💾</span> Save Changes
+                  </button>
+                </>
+              ) : selectedTask ? (
+                <button
+                  type="button"
+                  className="task-form-submit"
+                  onClick={() => {
+                    setSelectedTask(null);
+                    setIsEditing(false);
+                    setTitle('');
+                    setDescription('');
+                    setDate('');
+                    setStatus('Pending');
+                    setObservation('');
+                    setStartTime('');
+                    setEndTime('');
+                  }}
+                >
+                  Create New Task
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="task-form-submit"
+                >
+                  <span className="task-form-submit-icon">+</span> Create Task
+                </button>
+              )}
+            </div>
           </form>
         </div>
         <div className="task-list-panel"
@@ -426,9 +597,28 @@ const Tasks = () => {
                       </td>
                       <td className="col-actions">
                         <div className="action-btns">
-                          <button title="Edit" className="edit-btn">✏️</button>
-                          <button title="Delete" className="delete-btn">🗑️</button>
-                          <button title="Complete" className="complete-btn">✔️</button>
+                          <button
+                            title="Edit"
+                            className="edit-btn"
+                            onClick={e => { e.stopPropagation(); handleEdit(task); }}
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            title="Delete"
+                            className="delete-btn"
+                            onClick={e => { e.stopPropagation(); askDeleteTask(task); }}
+                          >
+                            🗑️
+                          </button>
+                          <button
+                            title="Complete"
+                            className="complete-btn"
+                            disabled={task.status === 'Completed'}
+                            onClick={e => { e.stopPropagation(); handleComplete(task); }}
+                          >
+                            ✔️
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -439,6 +629,17 @@ const Tasks = () => {
           </div>
         </div>
       </div>
+      {showDeleteConfirm && (
+        <div className="delete-confirm-modal">
+          <div className="delete-confirm-content">
+            <p>Are you sure you want to delete this task?</p>
+            <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <button onClick={confirmDeleteTask} className="delete-btn">Yes, delete</button>
+              <button onClick={cancelDeleteTask} className="task-form-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
