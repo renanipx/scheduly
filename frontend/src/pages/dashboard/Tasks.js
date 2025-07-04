@@ -57,6 +57,28 @@ const Tasks = () => {
     }
   }, [selectedTaskId, tasks]);
 
+  // Listen for AI assistant events
+  useEffect(() => {
+    const handleAITaskCreated = (event) => {
+      const taskData = event.detail;
+      setTitle(taskData.title || '');
+      setDescription(taskData.description || '');
+      setDate(taskData.date || '');
+      setStartTime(taskData.startTime || '');
+      setEndTime(taskData.endTime || '');
+      setStatus(taskData.status || 'Pending');
+      setObservation(taskData.observation || '');
+      setSelectedTask(null);
+      setIsEditing(false);
+    };
+
+    window.addEventListener('ai-task-created', handleAITaskCreated);
+
+    return () => {
+      window.removeEventListener('ai-task-created', handleAITaskCreated);
+    };
+  }, []);
+
   useEffect(() => {
     function updateFormHeight() {
       if (formContainerRef.current) {

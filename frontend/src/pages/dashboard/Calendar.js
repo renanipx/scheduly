@@ -64,6 +64,14 @@ const Calendar = () => {
   const [tasks, setTasks] = useState([]);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState('');
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [eventFormData, setEventFormData] = useState({
+    title: '',
+    description: '',
+    date: '',
+    startTime: '',
+    endTime: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +87,27 @@ const Calendar = () => {
       }
     };
     fetchTasks();
+  }, []);
+
+  // Listen for AI assistant events
+  useEffect(() => {
+    const handleAIEventCreated = (event) => {
+      const eventData = event.detail;
+      setEventFormData({
+        title: eventData.title || '',
+        description: eventData.description || '',
+        date: eventData.date || '',
+        startTime: eventData.startTime || '',
+        endTime: eventData.endTime || ''
+      });
+      setShowEventForm(true);
+    };
+
+    window.addEventListener('ai-event-created', handleAIEventCreated);
+
+    return () => {
+      window.removeEventListener('ai-event-created', handleAIEventCreated);
+    };
   }, []);
 
   // Handle date selection

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import AIAssistant from '../../components/AIAssistant';
 import '../../assets/Dashboard.css';
 
 const menuItems = [
@@ -24,6 +25,23 @@ const DashboardLayout = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
+  };
+
+  // AI Assistant callbacks
+  const handleTaskCreated = (taskData) => {
+    // This will be handled by the Tasks component
+    // We can emit a custom event or use a global state management solution
+    window.dispatchEvent(new CustomEvent('ai-task-created', { detail: taskData }));
+  };
+
+  const handleEventCreated = (eventData) => {
+    // This will be handled by the Calendar component
+    window.dispatchEvent(new CustomEvent('ai-event-created', { detail: eventData }));
+  };
+
+  const handleSettingsChanged = (settingsData) => {
+    // This will be handled by the Settings component
+    window.dispatchEvent(new CustomEvent('ai-settings-changed', { detail: settingsData }));
   };
 
   return (
@@ -71,6 +89,13 @@ const DashboardLayout = ({ children }) => {
           {children}
         </div>
       </main>
+
+      {/* Global AI Assistant */}
+      <AIAssistant 
+        onTaskCreated={handleTaskCreated}
+        onEventCreated={handleEventCreated}
+        onSettingsChanged={handleSettingsChanged}
+      />
     </div>
   );
 };
