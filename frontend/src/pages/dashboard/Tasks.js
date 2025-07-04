@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../../assets/Dashboard.css';
 import '../../assets/Tasks.css';
+import { useLocation } from 'react-router-dom';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -23,6 +24,9 @@ const Tasks = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const selectedTaskId = params.get('selected');
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -43,6 +47,15 @@ const Tasks = () => {
     };
     fetchTasks();
   }, [filterTitle, filterDate, filterStatus]);
+
+  useEffect(() => {
+    if (selectedTaskId && tasks.length > 0) {
+      const found = tasks.find(t => t._id === selectedTaskId);
+      if (found) {
+        handleSelectTask(found);
+      }
+    }
+  }, [selectedTaskId, tasks]);
 
   useEffect(() => {
     function updateFormHeight() {

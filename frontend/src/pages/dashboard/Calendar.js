@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../../assets/Calendar.css';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_COLORS = {
   'Completed': '#4caf50',
@@ -63,6 +64,7 @@ const Calendar = () => {
   const [tasks, setTasks] = useState([]);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -296,6 +298,7 @@ const Calendar = () => {
                           zIndex: 1
                         }}
                         title={task.title}
+                        onClick={() => navigate('/tasks?selected=' + task._id)}
                       >
                         <div className="task-title">{shortTitle}</div>
                       </div>
