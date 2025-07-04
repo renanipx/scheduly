@@ -181,23 +181,26 @@ const Tasks = () => {
   }
 
   // Quick summary of tasks
-  const summary = tasks.reduce(
-    (acc, t) => {
-      const isOverdue = t.status !== 'Completed' && new Date(t.date) < new Date();
-      acc.total++;
-      if (isOverdue) {
-        acc.overdue++;
-      } else if (t.status === 'Pending') {
-        acc.pending++;
-      } else if (t.status === 'In Progress') {
-        acc.inProgress++;
-      } else if (t.status === 'Completed') {
-        acc.completed++;
-      }
-      return acc;
-    },
-    { total: 0, pending: 0, inProgress: 0, completed: 0, overdue: 0 }
-  );
+  let completedTasks = 0, inProgressTasks = 0, pendingTasks = 0, overdueTasks = 0;
+  tasks.forEach(t => {
+    const isOverdue = isTaskOverdue(t);
+    if (isOverdue) {
+      overdueTasks++;
+    } else if (t.status === 'Pending') {
+      pendingTasks++;
+    } else if (t.status === 'In Progress') {
+      inProgressTasks++;
+    } else if (t.status === 'Completed') {
+      completedTasks++;
+    }
+  });
+  const summary = {
+    total: tasks.length,
+    pending: pendingTasks,
+    inProgress: inProgressTasks,
+    completed: completedTasks,
+    overdue: overdueTasks
+  };
 
   // Function to get the color of the status badge
   function getStatusColor(status) {
@@ -209,9 +212,38 @@ const Tasks = () => {
     }
   }
 
-  // Function to check if the task is overdue
-  function isOverdue(task) {
-    return task.status !== 'Completed' && new Date(task.date) < new Date();
+  function isTaskOverdue(task) {
+    if (task.status === 'Completed') return false;
+    let year, month, day;
+    if (task.date.includes('T')) {
+      const d = new Date(task.date);
+      year = d.getUTCFullYear();
+      month = d.getUTCMonth() + 1;
+      day = d.getUTCDate();
+    } else {
+      [year, month, day] = task.date.split('-').map(Number);
+    }
+    let taskEnd = new Date(year, month - 1, day);
+    if (task.endTime) {
+      const [endHour, endMinute] = task.endTime.split(':').map(Number);
+      taskEnd.setHours(endHour, endMinute, 0, 0);
+    } else {
+      taskEnd.setHours(23, 59, 59, 999);
+    }
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const taskDay = new Date(year, month - 1, day);
+    taskDay.setHours(0,0,0,0);
+
+    if (taskDay < today) {
+      return true;
+    } else if (taskDay.getTime() === today.getTime()) {
+      if (now > taskEnd) {
+        return true;
+      }
+    }
+    return false;
   }
 
   const sortedTasks = [...tasks].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -590,7 +622,7 @@ const Tasks = () => {
                         <span className={`status-badge status-badge--${task.status.replace(/ /g, '').toLowerCase()}`}>{task.status}</span>
                       </td>
                       <td className="col-overdue">
-                        {isOverdue(task) ? (
+                        {isTaskOverdue(task) ? (
                           <span className="overdue-badge">Yes</span>
                         ) : (
                           <span className="not-overdue-badge">No</span>
