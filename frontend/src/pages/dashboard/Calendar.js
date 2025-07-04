@@ -42,9 +42,9 @@ function getTaskColor(task) {
 
   // Today logic
   const today = new Date();
-  today.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0);
   const taskDay = new Date(year, month - 1, day);
-  taskDay.setHours(0,0,0,0);
+  taskDay.setHours(0, 0, 0, 0);
 
   if (taskDay < today) {
     // Past day, not completed
@@ -94,7 +94,7 @@ const Calendar = () => {
     const day = start.getDay();
     const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
     start.setDate(diff);
-    
+
     const days = [];
     for (let i = 0; i < 7; i++) {
       const day = new Date(start);
@@ -113,12 +113,9 @@ const Calendar = () => {
     return slots;
   };
 
-  // Filter tasks for a specific day and time
+  // Returns only tasks that start in this slot
   const getTasksForTimeSlot = (day, timeSlot) => {
     const hour = parseInt(timeSlot.split(':')[0]);
-    const slotStartMinutes = hour * 60;
-    const slotEndMinutes = slotStartMinutes + 60;
-
     const isSameDay = (d1, d2) =>
       d1.getFullYear() === d2.getFullYear() &&
       d1.getMonth() === d2.getMonth() &&
@@ -127,24 +124,29 @@ const Calendar = () => {
     return tasks.filter(task => {
       let taskDateObj;
       if (typeof task.date === 'string' && task.date.includes('T')) {
-        // ISO format: use UTC to get the correct day
         const d = new Date(task.date);
         taskDateObj = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
       } else if (typeof task.date === 'string') {
-        // 'YYYY-MM-DD'
         const [year, month, dayNum] = task.date.split('-').map(Number);
         taskDateObj = new Date(year, month - 1, dayNum);
       } else {
         taskDateObj = new Date(task.date);
       }
       if (!isSameDay(taskDateObj, day)) return false;
-      if (!task.startTime || !task.endTime) return false;
-      const [startH, startM] = task.startTime.split(':').map(Number);
-      const [endH, endM] = task.endTime.split(':').map(Number);
-      const taskStartMinutes = startH * 60 + startM;
-      const taskEndMinutes = endH * 60 + endM;
-      return taskStartMinutes < slotEndMinutes && taskEndMinutes > slotStartMinutes;
+      if (!task.startTime) return false;
+      const [startH] = task.startTime.split(':').map(Number);
+      return startH === hour;
     });
+  };
+
+  // Calculate how many slots the task occupies
+  const getTaskDurationSlots = (task) => {
+    if (!task.startTime || !task.endTime) return 1;
+    const [startH, startM] = task.startTime.split(':').map(Number);
+    const [endH, endM] = task.endTime.split(':').map(Number);
+    const startMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+    return Math.max(1, Math.ceil((endMinutes - startMinutes) / 60));
   };
 
   const weekDays = getWeekDays(currentWeek);
@@ -184,10 +186,10 @@ const Calendar = () => {
     }
     const date = new Date(year, month - 1, day);
     if (isNaN(date.getTime())) return '';
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -260,7 +262,7 @@ const Calendar = () => {
               <div className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
               <div className="day-date">{day.getDate()}</div>
             </div>
-            
+
             {timeSlots.map((timeSlot, idx) => {
               // Last row (19:00) appears empty for visual closure
               if (idx === timeSlots.length - 1) {
@@ -275,18 +277,19 @@ const Calendar = () => {
                 <div key={timeSlot} className="time-cell" style={{ minHeight: 40, verticalAlign: 'top', paddingTop: 0, paddingBottom: 0, position: 'relative' }}>
                   {tasksForSlot.map((task, i) => {
                     const shortTitle = task.title.length > 50 ? task.title.slice(0, 50) + '...' : task.title;
+                    const durationSlots = getTaskDurationSlots(task);
                     return (
-                      <div 
-                        key={task.id} 
+                      <div
+                        key={task.id}
                         className="task-item"
-                        style={{ 
+                        style={{
                           backgroundColor: getTaskColor(task),
                           borderLeft: `4px solid ${getTaskColor(task)}`,
                           width: widthPercent,
                           left: `calc(${(100 / taskCount) * i}% + ${i * gap}px)`,
                           position: 'absolute',
                           top: 0,
-                          height: '100%',
+                          height: `${durationSlots * 40}px`, // 40px por slot
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
