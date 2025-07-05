@@ -53,13 +53,12 @@ const Settings = () => {
           <h2>Appearance</h2>
           <div className="setting-item">
             <label>Theme</label>
-            <select 
-              value={settings.theme} 
+            <select
+              value={settings.theme}
               onChange={(e) => handleSettingChange('theme', e.target.value)}
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
-              <option value="auto">Auto</option>
             </select>
           </div>
         </div>
@@ -68,35 +67,11 @@ const Settings = () => {
           <h2>Notifications</h2>
           <div className="setting-item">
             <label>Enable Notifications</label>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={settings.notifications}
               onChange={(e) => handleSettingChange('notifications', e.target.checked)}
             />
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h2>Profile</h2>
-          <div className="setting-item">
-            <label>Email</label>
-            <input 
-              type="email" 
-              value={settings.email}
-              onChange={(e) => handleSettingChange('email', e.target.value)}
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="setting-item">
-            <label>Language</label>
-            <select 
-              value={settings.language} 
-              onChange={(e) => handleSettingChange('language', e.target.value)}
-            >
-              <option value="en">English</option>
-              <option value="pt">Portuguese</option>
-              <option value="es">Spanish</option>
-            </select>
           </div>
         </div>
 
