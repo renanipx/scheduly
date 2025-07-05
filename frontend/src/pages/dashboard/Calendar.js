@@ -87,6 +87,21 @@ const Calendar = () => {
       }
     };
     fetchTasks();
+
+    const handleAIEventCreated = () => {
+      fetchTasks();
+    };
+    window.addEventListener('ai-event-created', handleAIEventCreated);
+
+    const handleAITaskCreated = () => {
+      fetchTasks();
+    };
+    window.addEventListener('ai-task-created', handleAITaskCreated);
+
+    return () => {
+      window.removeEventListener('ai-event-created', handleAIEventCreated);
+      window.removeEventListener('ai-task-created', handleAITaskCreated);
+    };
   }, []);
 
   // Listen for AI assistant events

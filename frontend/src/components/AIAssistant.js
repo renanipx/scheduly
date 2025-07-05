@@ -16,8 +16,43 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
       setCurrentContext('tasks');
     } else if (path.includes('/settings')) {
       setCurrentContext('settings');
+    } else {
+      // Default to tasks context for dashboard and other pages
+      setCurrentContext('tasks');
     }
   }, []);
+
+  const createTaskDirectly = async (taskData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: taskData.title,
+          description: taskData.description,
+          date: taskData.date,
+          status: taskData.status || 'Pending',
+          observation: taskData.observation || '',
+          startTime: taskData.startTime,
+          endTime: taskData.endTime
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      const createdTask = await response.json();
+      return createdTask;
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw error;
+    }
+  };
 
   const processAIMessage = async (message) => {
     setIsProcessingAI(true);
@@ -34,24 +69,45 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
         case 'tasks':
           extractedData = extractTaskData(message);
           if (extractedData) {
-            aiResponse = {
-              type: 'assistant',
-              content: `I've prepared a task for you! Here's what I understood:
+            try {
+              // Create task directly via API
+              const createdTask = await createTaskDirectly(extractedData);
               
+              aiResponse = {
+                type: 'assistant',
+                content: `✅ **Task created successfully!**
+
+📋 **Title**: ${createdTask.title}
+📅 **Date**: ${createdTask.date}
+⏰ **Time**: ${createdTask.startTime} - ${createdTask.endTime}
+📝 **Description**: ${createdTask.description || 'No description provided'}
+🔄 **Status**: ${createdTask.status}
+
+Your task has been added to your list!`,
+                timestamp: new Date()
+              };
+              
+              // Call the callback to update the UI if needed
+              if (onTaskCreated) {
+                onTaskCreated(createdTask);
+              }
+              
+              // Close AI assistant after successful task creation
+              setTimeout(() => setShowAIAssistant(false), 4000);
+            } catch (error) {
+              aiResponse = {
+                type: 'assistant',
+                content: `❌ **Error creating task**
+
+I understood your request but couldn't create the task. Please try again or create it manually in the tasks page.
+
+**What I understood:**
 📋 **Title**: ${extractedData.title}
 📅 **Date**: ${extractedData.date}
-⏰ **Time**: ${extractedData.startTime} - ${extractedData.endTime}
-📝 **Description**: ${extractedData.description || 'No description provided'}
-
-You can review and modify the details, then create the task.`,
-              timestamp: new Date()
-            };
-            // Call the callback to fill the form
-            if (onTaskCreated) {
-              onTaskCreated(extractedData);
+⏰ **Time**: ${extractedData.startTime} - ${extractedData.endTime}`,
+                timestamp: new Date()
+              };
             }
-            // Close AI assistant after successful task processing
-            setTimeout(() => setShowAIAssistant(false), 3000);
           } else {
             aiResponse = {
               type: 'assistant',
@@ -243,15 +299,20 @@ What would you like to change?`,
       extractedEndTime = `${endHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     }
     
-    // Extract title/description
+    // Extract title/description - create a cleaner title
     const words = message.split(' ');
-    const titleWords = words.filter(word => 
-      !word.match(/tomorrow|today|next|this|at|from|to|am|pm|meeting|call|review|prepare/i) &&
-      !word.match(/^\d/) &&
-      word.length > 2
-    );
+    const titleWords = words.filter(word => {
+      const lowerWord = word.toLowerCase();
+      // Remove time-related words, dates, and common task words that don't add meaning
+      return !word.match(/tomorrow|today|next|this|at|from|to|am|pm|for|hour|hours|minute|minutes/i) &&
+             !word.match(/^\d/) &&
+             !word.match(/^(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|wed|thu|fri|sat|sun)$/i) &&
+             !word.match(/^(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)$/i) &&
+             word.length > 2;
+    });
     
-    const title = titleWords.slice(0, 5).join(' ').replace(/[^\w\s]/g, '');
+    // Take first 3-4 meaningful words for a concise title
+    const title = titleWords.slice(0, 4).join(' ').replace(/[^\w\s]/g, '').trim();
     
     if (extractedDate && extractedStartTime) {
       return {
@@ -326,7 +387,7 @@ What would you like to change?`,
     
     switch (currentContext) {
       case 'tasks':
-        welcomeMessage = `Hello! I'm your AI assistant for tasks. I can help you create tasks using natural language.
+        welcomeMessage = `Hello! I'm your AI assistant for tasks. I can create tasks directly for you using natural language!
 
 **Task Examples:**
 • "Meeting with client tomorrow at 2pm for 1 hour"
@@ -334,7 +395,7 @@ What would you like to change?`,
 • "Call supplier next Monday at 3pm"
 • "Prepare presentation for Wednesday 10am-12pm"
 
-Just describe your task and I'll help you create it!`;
+Just describe your task and I'll create it automatically!`;
         break;
       case 'calendar':
         welcomeMessage = `Hello! I'm your AI assistant for calendar events. I can help you create events using natural language.
@@ -359,8 +420,16 @@ Just describe your event and I'll help you create it!`;
 
 What would you like to change?`;
         break;
-      default:
-        welcomeMessage = `Hello! I'm your AI assistant. I can help you with tasks, calendar events, and settings. What would you like to do?`;
+              default:
+          welcomeMessage = `Hello! I'm your AI assistant. I can create tasks directly for you using natural language!
+
+**Task Examples:**
+• "Meeting with client tomorrow at 2pm for 1 hour"
+• "Review project documents on Friday from 9am to 11am"
+• "Call supplier next Monday at 3pm"
+• "Prepare presentation for Wednesday 10am-12pm"
+
+Just describe your task and I'll create it automatically!`;
     }
     
     setAiMessages([{

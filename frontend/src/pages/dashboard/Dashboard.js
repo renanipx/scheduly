@@ -21,6 +21,17 @@ const Dashboard = () => {
       }
     };
     fetchTasks();
+
+    // Listen for AI task creation events
+    const handleAITaskCreated = () => {
+      fetchTasks(); // Refresh tasks when AI creates a new one
+    };
+
+    window.addEventListener('ai-task-created', handleAITaskCreated);
+
+    return () => {
+      window.removeEventListener('ai-task-created', handleAITaskCreated);
+    };
   }, []);
 
   // Helper to check if a task is overdue (same as calendar)
