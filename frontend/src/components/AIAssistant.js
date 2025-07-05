@@ -223,16 +223,22 @@ What would you like to change?`,
   const extractTaskData = (message) => {
     const lowerMessage = message.toLowerCase();
     
+
+    
     // Extract date patterns
     const datePatterns = [
       /(?:tomorrow|tmr|tmrw)/i,
       /(?:today)/i,
       /(?:next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday))/i,
       /(?:this\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday))/i,
+      /(?:on\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday))/i,
+      /(?:for\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday))/i,
       /(\d{1,2}\/\d{1,2}\/\d{4})/,
       /(\d{4}-\d{2}-\d{2})/,
       /(\d{1,2}-\d{1,2}-\d{4})/
     ];
+    
+
     
     let extractedDate = '';
     let extractedStartTime = '';
@@ -242,13 +248,14 @@ What would you like to change?`,
     for (let pattern of datePatterns) {
       const match = message.match(pattern);
       if (match) {
-        if (pattern.test('tomorrow')) {
+
+        if (pattern.source.includes('tomorrow')) {
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
           extractedDate = tomorrow.toISOString().slice(0, 10);
-        } else if (pattern.test('today')) {
+        } else if (pattern.source.includes('today')) {
           extractedDate = new Date().toISOString().slice(0, 10);
-        } else if (pattern.test('next') || pattern.test('this')) {
+        } else if (pattern.source.includes('next') || pattern.source.includes('this') || pattern.source.includes('on') || pattern.source.includes('for')) {
           const dayName = match[1].toLowerCase();
           const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
           const targetDay = days.indexOf(dayName);
@@ -262,6 +269,7 @@ What would you like to change?`,
         } else {
           extractedDate = match[1];
         }
+
         break;
       }
     }
