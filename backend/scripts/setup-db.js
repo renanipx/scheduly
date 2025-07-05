@@ -26,7 +26,8 @@ async function setupDatabase() {
         name: 'Admin',
         email: 'admin@chronoly.com',
         password: 'admin123',
-        role: 'admin'
+        role: 'admin',
+        theme: 'light'
       });
       console.log('Admin user created successfully');
     } else {

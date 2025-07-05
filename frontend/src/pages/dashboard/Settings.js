@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import '../../assets/Dashboard.css';
 import '../../assets/Settings.css';
+import { useUser } from '../../context/UserContext';
+import axios from 'axios';
 
 const Settings = () => {
+  const { user, setUser } = useUser();
   const [settings, setSettings] = useState({
     theme: 'light',
     notifications: true,
@@ -27,11 +30,44 @@ const Settings = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (settings.theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [settings.theme]);
+
+  useEffect(() => {
+    if (user && user.theme) {
+      setSettings(prev => ({
+        ...prev,
+        theme: user.theme
+      }));
+    }
+  }, [user]);
+
+  const updateTheme = async (theme) => {
+    try {
+      if (!user) return;
+      const token = localStorage.getItem('token');
+      await axios.put(
+        process.env.REACT_APP_BACKEND_URL + '/api/users/theme',
+        { theme },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUser({ ...user, theme });
+    } catch (error) { }
+  };
+
   const handleSettingChange = (setting, value) => {
     setSettings(prev => ({
       ...prev,
       [setting]: value
     }));
+    if (setting === 'theme') {
+      updateTheme(value);
+    }
   };
 
   const handleSaveSettings = () => {

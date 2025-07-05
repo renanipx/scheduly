@@ -24,6 +24,8 @@ const DashboardLayout = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    document.body.classList.remove('dark-mode');
     navigate('/login');
   };
 

@@ -105,6 +105,13 @@ function Login() {
           headers: { Authorization: `Bearer ${response.data.token}` }
         });
         setUser(userRes.data);
+
+        if (userRes.data.theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+
         navigate('/dashboard');
       }
     } catch (err) {

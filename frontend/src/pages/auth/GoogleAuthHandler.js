@@ -27,6 +27,11 @@ function GoogleAuthHandler() {
         .then(res => res.json())
         .then(user => {
           setUser(user);
+          if (user.theme === 'dark') {
+            document.body.classList.add('dark-mode');
+          } else {
+            document.body.classList.remove('dark-mode');
+          }
           navigate('/dashboard', { replace: true });
         })
         .catch(() => {

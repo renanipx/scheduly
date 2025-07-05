@@ -261,4 +261,50 @@
   .settings-modal-content p {
     color: #a0aec0;
   }
+}
+
+/* Tema escuro */
+body.dark-mode, .dark-mode {
+  background-color: #181818;
+  color: #f1f1f1;
+}
+
+body.dark-mode .settings-component,
+.dark-mode .settings-component {
+  background-color: #232323;
+  color: #f1f1f1;
+}
+
+body.dark-mode .settings-section,
+.dark-mode .settings-section {
+  background-color: #232323;
+  color: #f1f1f1;
+}
+
+body.dark-mode .setting-item,
+.dark-mode .setting-item {
+  background-color: #232323;
+  color: #f1f1f1;
+}
+
+body.dark-mode .settings-header,
+.dark-mode .settings-header {
+  background-color: #181818;
+  color: #f1f1f1;
+}
+
+body.dark-mode select,
+.dark-mode select,
+body.dark-mode input,
+.dark-mode input {
+  background-color: #232323;
+  color: #f1f1f1;
+  border: 1px solid #444;
+}
+
+body.dark-mode button,
+.dark-mode button {
+  background-color: #333;
+  color: #f1f1f1;
+  border: 1px solid #444;
 } 

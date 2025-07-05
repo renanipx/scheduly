@@ -20,7 +20,8 @@ router.post('/register', async (req, res) => {
     const user = new User({
       name,
       email,
-      password
+      password,
+      theme: 'light'
     });
 
     await user.save();

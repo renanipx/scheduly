@@ -51,6 +51,21 @@ router.put('/change-password', isAuthenticated, async (req, res) => {
   }
 });
 
+router.put('/theme', isAuthenticated, async (req, res) => {
+  try {
+    const { theme } = req.body;
+    if (!['light', 'dark'].includes(theme)) {
+      return res.status(400).json({ message: 'Theme invalid' });
+    }
+    const user = await User.findById(req.user.id);
+    user.theme = theme;
+    await user.save();
+    res.json({ message: 'Theme updated successfully', theme });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating theme', error: error.message });
+  }
+});
+
 // Admin routes
 // Get all users (admin only)
 router.get('/', isAuthenticated, isAdmin, async (req, res) => {

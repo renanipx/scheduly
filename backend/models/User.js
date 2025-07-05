@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  theme: {
+    type: String,
+    enum: ['light', 'dark'],
+    default: 'light'
+  },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   createdAt: {
