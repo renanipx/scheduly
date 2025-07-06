@@ -495,4 +495,16 @@
   .dark-mode .main-content {
     background: transparent;
     color: #f1f1f1;
-  } 
+  }
+  
+  body.dark-mode .welcome-section h1,
+  .dark-mode .welcome-section h1,
+  body.dark-mode .welcome-section p,
+  .dark-mode .welcome-section p {
+    color: darkgrey !important;
+  }
+  
+  body.dark-mode .toggle-sidebar,
+  .dark-mode .toggle-sidebar {
+    color: grey !important;
+  }

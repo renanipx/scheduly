@@ -313,13 +313,6 @@ body.dark-mode input,
   border: 1px solid #444;
 }
 
-body.dark-mode button,
-.dark-mode button {
-  background-color: #333;
-  color: #f1f1f1;
-  border: 1px solid #444;
-}
-
 body.dark-mode .setting-item label,
 .dark-mode .setting-item label {
   color: darkgrey !important;
