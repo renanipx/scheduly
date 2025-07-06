@@ -15,6 +15,15 @@ const Settings = () => {
   const [showSettingsForm, setShowSettingsForm] = useState(false);
   const [currentSetting, setCurrentSetting] = useState(null);
 
+  // Change password states
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [loadingPassword, setLoadingPassword] = useState(false);
+
   // Listen for AI assistant events
   useEffect(() => {
     const handleAISettingsChanged = (event) => {
@@ -77,6 +86,38 @@ const Settings = () => {
     setCurrentSetting(null);
   };
 
+  // Change password handler
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Please fill in all fields.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      return;
+    }
+    setLoadingPassword(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        process.env.REACT_APP_BACKEND_URL + '/api/users/change-password',
+        { currentPassword, newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPasswordSuccess('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      setPasswordError(error.response?.data?.message || 'Error changing password.');
+    } finally {
+      setLoadingPassword(false);
+    }
+  };
+
   return (
     <div className="settings-component">
       <div className="settings-header">
@@ -114,10 +155,63 @@ const Settings = () => {
         <div className="settings-section">
           <h2>Security</h2>
           <div className="setting-item">
-            <button className="change-password-btn">Change Password</button>
+            <button className="change-password-btn" onClick={() => setShowChangePassword(v => !v)}>
+              Change Password
+            </button>
           </div>
         </div>
       </div>
+
+      {showChangePassword && (
+        <div className="ai-assistant-modal">
+          <div className="ai-assistant-content" style={{ maxWidth: 400, width: '95%', padding: 0, height: 'auto', maxHeight: '90vh', borderRadius: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', padding: 20, borderRadius: '20px 20px 0 0' }}>
+              <h3 style={{ margin: 0, fontWeight: 700 }}>Change Password</h3>
+              <button className="ai-close-btn" onClick={() => setShowChangePassword(false)}>&times;</button>
+            </div>
+            <form className="change-password-form" onSubmit={handleChangePassword} style={{ margin: 0, padding: 24 }}>
+              <div className="form-group">
+                <label htmlFor="current-password">Current Password</label>
+                <input
+                  type="password"
+                  id="current-password"
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="new-password">New Password</label>
+                <input
+                  type="password"
+                  id="new-password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirm-password">Confirm New Password</label>
+                <input
+                  type="password"
+                  id="confirm-password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+              {passwordError && <div className="error-message">{passwordError}</div>}
+              {passwordSuccess && <div className="success-message">{passwordSuccess}</div>}
+              <button type="submit" className="save-password-btn" disabled={loadingPassword}>
+                {loadingPassword ? 'Saving...' : 'Save Password'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Settings Form Modal */}
       {showSettingsForm && currentSetting && (

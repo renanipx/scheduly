@@ -326,4 +326,81 @@ body.dark-mode .setting-item label,
 body.dark-mode .settings-header h1,
 .dark-mode .settings-header h1 {
   color: darkgrey !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(40, 0, 60, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: #ede9fe;
+  border-radius: 18px;
+  padding: 32px 28px 24px 28px;
+  box-shadow: 0 8px 32px 0 #a78bfa55, 0 1.5px 8px 0 #a3bffa33;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #3c366b;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  color: #7c3aed;
+  cursor: pointer;
+}
+
+.change-password-form .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.change-password-form label {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.change-password-form input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.save-password-btn {
+  width: 100%;
+  padding: 12px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.13);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  margin-top: 8px;
+}
+
+.save-password-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a67d8 0%, #764ba2 100%);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.18);
+}
+
+.save-password-btn:disabled {
+  background: #cbd5e0;
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
 } 
