@@ -230,8 +230,9 @@
   }
   
   .settings-section h2 {
-    color: #e2e8f0;
-    border-bottom-color: #2d3748;
+    color: #a3bffa;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.18);
+    border-bottom-color: #3b4252;
   }
   
   .setting-item {
@@ -239,7 +240,12 @@
   }
   
   .setting-item label {
-    color: #e2e8f0;
+    color: darkgrey;
+    background: none;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    padding: 0;
+    border-radius: 0;
   }
   
   .setting-item input[type="email"],
@@ -270,9 +276,14 @@ body.dark-mode, .dark-mode {
 }
 
 body.dark-mode .settings-component,
-.dark-mode .settings-component {
-  background-color: #232323;
-  color: #f1f1f1;
+.dark-mode .settings-component,
+body.dark-mode .settings-section h2,
+.dark-mode .settings-section h2,
+body.dark-mode .settings-header p,
+.dark-mode .settings-header p,
+body.dark-mode .settings-modal-content p,
+.dark-mode .settings-modal-content p {
+  color: darkgrey !important;
 }
 
 body.dark-mode .settings-section,
@@ -307,4 +318,19 @@ body.dark-mode button,
   background-color: #333;
   color: #f1f1f1;
   border: 1px solid #444;
+}
+
+body.dark-mode .setting-item label,
+.dark-mode .setting-item label {
+  color: darkgrey !important;
+  background: none !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.18) !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+body.dark-mode .settings-header h1,
+.dark-mode .settings-header h1 {
+  color: darkgrey !important;
 } 
