@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -12,8 +12,23 @@ import Settings from './pages/dashboard/Settings';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import './assets/App.css';
 import './assets/AIAssistant.css';
+import { useUser } from './context/UserContext';
 
 function App() {
+  const { user } = useUser();
+  useEffect(() => {
+    let theme = localStorage.getItem('theme');
+    if (user && user.theme) {
+      theme = user.theme;
+      localStorage.setItem('theme', theme);
+    }
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [user]);
+
   return (
     <Router>
       <div className="App">
