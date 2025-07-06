@@ -508,3 +508,13 @@
   .dark-mode .toggle-sidebar {
     color: grey !important;
   }
+  
+  body.dark-mode .dashboard-card,
+  .dark-mode .dashboard-card {
+    background: #232323 !important;
+  }
+  
+  body.dark-mode .stat-card,
+  .dark-mode .stat-card {
+    background: lightgrey !important;
+  }
