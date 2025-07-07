@@ -155,9 +155,16 @@ const Settings = () => {
         <div className="settings-section">
           <h2>Security</h2>
           <div className="setting-item">
-            <button className="change-password-btn" onClick={() => setShowChangePassword(v => !v)}>
-              Change Password
-            </button>
+            {!user?.provider && (
+              <button className="change-password-btn" onClick={() => setShowChangePassword(v => !v)}>
+                Change Password
+              </button>
+            )}
+            {user?.provider === 'google' && (
+              <div style={{ color: '#888', fontSize: 14 }}>
+                Password change is not available for Google accounts.
+              </div>
+            )}
           </div>
         </div>
       </div>

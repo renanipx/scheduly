@@ -26,7 +26,8 @@ function GoogleAuthHandler() {
       })
         .then(res => res.json())
         .then(user => {
-          setUser(user);
+          const userWithProvider = { ...user, provider: 'google' };
+          setUser(userWithProvider);
           if (user.theme === 'dark') {
             document.body.classList.add('dark-mode');
           } else {
