@@ -8,7 +8,7 @@ const Settings = () => {
   const { user, setUser } = useUser();
   const [settings, setSettings] = useState({
     theme: 'light',
-    notifications: true,
+    notifications: false,
     email: '',
     language: 'en',
     whatsapp: false,
@@ -58,6 +58,16 @@ const Settings = () => {
         theme: user.theme
       }));
     }
+    if (user && (user.whatsappNumber || user.typeCalendar)) {
+      setSettings(prev => ({
+        ...prev,
+        notifications: true,
+        whatsapp: !!user.whatsappNumber,
+        whatsappNumber: user.whatsappNumber || '',
+        calendar: !!user.typeCalendar,
+        calendarProvider: user.typeCalendar || 'google',
+      }));
+    }
   }, [user]);
 
   const updateTheme = async (theme) => {
@@ -73,14 +83,55 @@ const Settings = () => {
     } catch (error) { }
   };
 
-  const handleSettingChange = (setting, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [setting]: value
-    }));
-    if (setting === 'theme') {
-      updateTheme(value);
+  const updateNotificationSettings = async (newSettings) => {
+    try {
+      const token = localStorage.getItem('token');
+      const data = {};
+      if (newSettings.whatsapp && newSettings.whatsappNumber) {
+        data.whatsappNumber = newSettings.whatsappNumber;
+      } else {
+        data.whatsappNumber = '';
+      }
+      if (newSettings.calendar) {
+        data.typeCalendar = newSettings.calendarProvider;
+      } else {
+        data.typeCalendar = null;
+      }
+      const response = await axios.put(
+        process.env.REACT_APP_BACKEND_URL + '/api/users/notification-settings',
+        data,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data && response.data.user) {
+        setUser(response.data.user);
+      }
+    } catch (error) {
     }
+  };
+
+  const handleSettingChange = (setting, value) => {
+    setSettings(prev => {
+      const newSettings = { ...prev, [setting]: value };
+      // Atualiza backend se relevante
+      if (
+        setting === 'whatsapp' ||
+        setting === 'whatsappNumber' ||
+        setting === 'calendar' ||
+        setting === 'calendarProvider'
+      ) {
+        // Só salva se pelo menos um estiver marcado e preenchido
+        if (
+          (newSettings.whatsapp && newSettings.whatsappNumber) ||
+          newSettings.calendar
+        ) {
+          updateNotificationSettings(newSettings);
+        }
+      }
+      if (setting === 'theme') {
+        updateTheme(value);
+      }
+      return newSettings;
+    });
   };
 
   const handleSaveSettings = () => {
@@ -209,12 +260,12 @@ const Settings = () => {
         <div className="settings-section">
           <h2>Security</h2>
           <div className="setting-item">
-            {!user?.provider && (
+            {!user?.googleId && (
               <button className="change-password-btn" onClick={() => setShowChangePassword(v => !v)}>
                 Change Password
               </button>
             )}
-            {user?.provider === 'google' && (
+            {user?.googleId && (
               <div style={{ color: '#888', fontSize: 14 }}>
                 Password change is not available for Google accounts.
               </div>

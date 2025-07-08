@@ -21,7 +21,9 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password,
-      theme: 'light'
+      theme: 'light',
+      whatsappNumber: '',
+      typeCalendar: null
     });
 
     await user.save();

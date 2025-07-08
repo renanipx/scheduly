@@ -7,7 +7,10 @@ const { isAuthenticated, isAdmin } = require('../middleware/auth');
 router.get('/profile', isAuthenticated, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+    const userObj = user.toObject();
+    if (!('whatsappNumber' in userObj)) userObj.whatsappNumber = '';
+    if (!('typeCalendar' in userObj)) userObj.typeCalendar = null;
+    res.json(userObj);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user profile', error: error.message });
   }
@@ -63,6 +66,30 @@ router.put('/theme', isAuthenticated, async (req, res) => {
     res.json({ message: 'Theme updated successfully', theme });
   } catch (error) {
     res.status(500).json({ message: 'Error updating theme', error: error.message });
+  }
+});
+
+router.put('/notification-settings', isAuthenticated, async (req, res) => {
+  try {
+    const { whatsappNumber, typeCalendar } = req.body;
+    const user = await User.findById(req.user.id);
+    let updated = false;
+    if (typeof whatsappNumber === 'string' && whatsappNumber.trim() !== '') {
+      user.whatsappNumber = whatsappNumber;
+      updated = true;
+    }
+    if (typeCalendar === 'google' || typeCalendar === 'outlook' || typeCalendar === null) {
+      user.typeCalendar = typeCalendar;
+      updated = true;
+    }
+    if (updated) {
+      await user.save();
+      return res.json({ message: 'Notification settings updated', user });
+    } else {
+      return res.status(400).json({ message: 'No valid notification data to update' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating notification settings', error: error.message });
   }
 });
 

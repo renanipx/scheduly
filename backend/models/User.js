@@ -37,6 +37,15 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  whatsappNumber: {
+    type: String,
+    default: ''
+  },
+  typeCalendar: {
+    type: String,
+    enum: ['google', 'outlook', null],
+    default: null
   }
 });
 
