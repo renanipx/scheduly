@@ -133,6 +133,7 @@
     opacity: 0;
     transform: translateY(30px) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -192,31 +193,31 @@
   .settings-component {
     padding: 1rem;
   }
-  
+
   .settings-header h1 {
     font-size: 2rem;
   }
-  
+
   .setting-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .setting-item input[type="email"],
   .setting-item select {
     min-width: 100%;
   }
-  
+
   .settings-modal-content {
     margin: 1rem;
     padding: 1.5rem;
   }
-  
+
   .settings-modal-actions {
     flex-direction: column;
   }
-  
+
   .settings-modal-actions button {
     width: 100%;
   }
@@ -228,49 +229,50 @@
     background: #1a202c;
     border-color: #2d3748;
   }
-  
+
   .settings-section h2 {
     color: #a3bffa;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.18);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
     border-bottom-color: #3b4252;
   }
-  
+
   .setting-item {
     border-bottom-color: #2d3748;
   }
-  
+
   .setting-item label {
     color: darkgrey;
     background: none;
     font-weight: 600;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
     padding: 0;
     border-radius: 0;
   }
-  
+
   .setting-item input[type="email"],
   .setting-item select {
     background: #2d3748;
     color: #e2e8f0;
     border-color: #4a5568;
   }
-  
+
   .settings-modal-content {
     background: #1a202c;
     color: #e2e8f0;
   }
-  
+
   .settings-modal-content h3 {
     color: #e2e8f0;
   }
-  
+
   .settings-modal-content p {
     color: #a0aec0;
   }
 }
 
-/* Tema escuro */
-body.dark-mode, .dark-mode {
+/* Theme dark */
+body.dark-mode,
+.dark-mode {
   background-color: #181818;
   color: #f1f1f1;
 }
@@ -318,7 +320,7 @@ body.dark-mode .setting-item label,
   color: darkgrey !important;
   background: none !important;
   font-weight: 600 !important;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.18) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.18) !important;
   padding: 0 !important;
   border-radius: 0 !important;
 }
@@ -330,7 +332,10 @@ body.dark-mode .settings-header h1,
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(40, 0, 60, 0.35);
   display: flex;
   align-items: center;
@@ -403,4 +408,69 @@ body.dark-mode .settings-header h1,
   color: #888;
   cursor: not-allowed;
   box-shadow: none;
-} 
+}
+
+.notification-options-box {
+  background: #f8f9fd;
+  border: 1px solid #e0e4ef;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 16px;
+  box-shadow: 0 2px 8px rgba(100, 100, 150, 0.06);
+}
+
+.notification-options-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #4a4a6a;
+}
+
+.notification-option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.notification-option-label svg {
+  width: 20px;
+  height: 20px;
+  color: #4f8a10;
+}
+
+.dark-mode .notification-options-box {
+  background: lightgrey !important;
+  color: #222 !important;
+}
+
+.dark-mode .notification-options-title,
+.dark-mode .notification-option-label {
+  color: dimgray;
+}
+
+.notification-options-box input[type="tel"] {
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1.5px solid #ccc;
+  font-size: 1rem;
+  background: #fff;
+  color: #222;
+  min-width: 180px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.notification-options-box input[type="tel"]:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px #667eea22;
+  outline: none;
+}
+
+.dark-mode .notification-options-box input[type="tel"] {
+  background: #e0e0e0 !important;
+  color: #222 !important;
+  border: 1.5px solid #888 !important;
+}
