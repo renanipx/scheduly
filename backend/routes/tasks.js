@@ -45,7 +45,7 @@ router.post('/', authenticate, async (req, res) => {
       user: req.user._id
     });
     await task.save();
-    // Envia WhatsApp se o usuário tiver whatsappNumber
+    let whatsappNotification = false;
     if (req.user.whatsappNumber) {
       const msg =
         `*New Task Created!*\n` +
@@ -57,11 +57,15 @@ router.post('/', authenticate, async (req, res) => {
         `Observation: ${observation || '-'}`;
       try {
         await sendWhatsAppMessage(req.user.whatsappNumber, msg);
+        whatsappNotification = true;
       } catch (werr) {
-        console.error('Erro ao enviar WhatsApp:', werr.message);
+        whatsappNotification = false;
       }
     }
-    res.status(201).json(task);
+    res.status(201).json({
+      ...task.toObject(),
+      whatsappNotification
+    });
   } catch (err) {
     res.status(400).json({ error: 'Error creating task' });
   }

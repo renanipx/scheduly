@@ -72,18 +72,13 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
             try {
               // Create task directly via API
               const createdTask = await createTaskDirectly(extractedData);
-              
+              let whatsappNotice = '';
+              if (createdTask && createdTask.whatsappNotification === true) {
+                whatsappNotice = '\n\n📲 A WhatsApp notification was sent to your registered number!';
+              }
               aiResponse = {
                 type: 'assistant',
-                content: `✅ **Task created successfully!**
-
-📋 **Title**: ${createdTask.title}
-📅 **Date**: ${createdTask.date}
-⏰ **Time**: ${createdTask.startTime} - ${createdTask.endTime}
-📝 **Description**: ${createdTask.description || 'No description provided'}
-🔄 **Status**: ${createdTask.status}
-
-Your task has been added to your list!`,
+                content: `✅ **Task created successfully!**\n\n📋 **Title**: ${createdTask.title}\n📅 **Date**: ${createdTask.date}\n⏰ **Time**: ${createdTask.startTime} - ${createdTask.endTime}\n📝 **Description**: ${createdTask.description || 'No description provided'}\n🔄 **Status**: ${createdTask.status}${whatsappNotice}\n\nYour task has been added to your list!`,
                 timestamp: new Date()
               };
               
@@ -91,9 +86,6 @@ Your task has been added to your list!`,
               if (onTaskCreated) {
                 onTaskCreated(createdTask);
               }
-              
-              // Close AI assistant after successful task creation
-              setTimeout(() => setShowAIAssistant(false), 4000);
             } catch (error) {
               aiResponse = {
                 type: 'assistant',
