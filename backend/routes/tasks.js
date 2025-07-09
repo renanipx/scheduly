@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const passport = require('passport');
+const { sendWhatsAppMessage } = require('../services/whatsappService');
 
 // Authentication middleware
 const authenticate = passport.authenticate('jwt', { session: false });
@@ -44,6 +45,22 @@ router.post('/', authenticate, async (req, res) => {
       user: req.user._id
     });
     await task.save();
+    // Envia WhatsApp se o usuário tiver whatsappNumber
+    if (req.user.whatsappNumber) {
+      const msg =
+        `*New Task Created!*\n` +
+        `Title: ${title}\n` +
+        `Date: ${date ? new Date(date).toLocaleDateString('en-US') : '-'}\n` +
+        `Time: ${startTime || '-'} to ${endTime || '-'}\n` +
+        `Status: ${status}\n` +
+        `Description: ${description || '-'}\n` +
+        `Observation: ${observation || '-'}`;
+      try {
+        await sendWhatsAppMessage(req.user.whatsappNumber, msg);
+      } catch (werr) {
+        console.error('Erro ao enviar WhatsApp:', werr.message);
+      }
+    }
     res.status(201).json(task);
   } catch (err) {
     res.status(400).json({ error: 'Error creating task' });
