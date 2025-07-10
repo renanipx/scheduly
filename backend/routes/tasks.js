@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
+const User = require('../models/User');
 const passport = require('passport');
 const { sendWhatsAppMessage } = require('../services/whatsappService');
+const { createCalendarEvent } = require('../services/calendarService');
 
 // Authentication middleware
 const authenticate = passport.authenticate('jwt', { session: false });
@@ -45,7 +47,11 @@ router.post('/', authenticate, async (req, res) => {
       user: req.user._id
     });
     await task.save();
+    
     let whatsappNotification = false;
+    let calendarNotification = false;
+    
+    // Send WhatsApp notification if configured
     if (req.user.whatsappNumber) {
       const msg =
         `*New Task Created!*\n` +
@@ -62,9 +68,29 @@ router.post('/', authenticate, async (req, res) => {
         whatsappNotification = false;
       }
     }
+    
+    // Create calendar event if configured
+    if (req.user.typeCalendar && date && startTime && endTime) {
+      try {
+        const user = await User.findById(req.user._id);
+        const calendarResult = await createCalendarEvent(user, {
+          title,
+          description,
+          date,
+          startTime,
+          endTime
+        });
+        calendarNotification = calendarResult.success;
+      } catch (cerr) {
+        console.error('Calendar event creation error:', cerr);
+        calendarNotification = false;
+      }
+    }
+    
     res.status(201).json({
       ...task.toObject(),
-      whatsappNotification
+      whatsappNotification,
+      calendarNotification
     });
   } catch (err) {
     res.status(400).json({ error: 'Error creating task' });

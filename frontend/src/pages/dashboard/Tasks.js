@@ -179,6 +179,17 @@ const Tasks = () => {
           }
         );
         setTasks([...tasks, response.data]);
+        
+        // Show success message with notifications
+        let successMessage = 'Task created successfully!';
+        if (response.data.whatsappNotification) {
+          successMessage += ' 📲 WhatsApp notification sent.';
+        }
+        if (response.data.calendarNotification) {
+          successMessage += ' 📅 Calendar event created.';
+        }
+        setError(''); // Clear any previous errors
+        // You could add a success state here if needed
       }
       // Limpar formulário após salvar/criar
       setTitle('');

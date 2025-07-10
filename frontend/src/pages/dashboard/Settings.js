@@ -70,6 +70,24 @@ const Settings = () => {
     }
   }, [user]);
 
+  // Check for Google auth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleAuth = urlParams.get('google_auth');
+    
+    if (googleAuth === 'success') {
+      // Update local user state to reflect Google Calendar connection
+      setUser(prevUser => ({
+        ...prevUser,
+        typeCalendar: 'google',
+        googleAccessToken: 'connected' // Placeholder to indicate connection
+      }));
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const updateTheme = async (theme) => {
     try {
       if (!user) return;
@@ -173,6 +191,22 @@ const Settings = () => {
     }
   };
 
+  // Google Calendar connection handlers
+  const handleConnectGoogle = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        process.env.REACT_APP_BACKEND_URL + '/api/google-auth/calendar/auth-url',
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      window.location.href = response.data.authUrl;
+    } catch (error) {
+      console.error('Error getting Google auth URL:', error);
+    }
+  };
+
+
+
   return (
     <div className="settings-component">
       <div className="settings-header">
@@ -243,14 +277,39 @@ const Settings = () => {
               </label>
               {settings.calendar && (
                 <div style={{ marginTop: 8 }}>
-                  <label style={{ marginRight: 8 }}>Calendar Provider</label>
-                  <select
-                    value={settings.calendarProvider}
-                    onChange={e => handleSettingChange('calendarProvider', e.target.value)}
-                  >
-                    <option value="google">Google Calendar</option>
-                    <option value="outlook">Outlook Calendar</option>
-                  </select>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ marginRight: 8 }}>Calendar Provider</label>
+                    <select
+                      value={settings.calendarProvider}
+                      onChange={e => handleSettingChange('calendarProvider', e.target.value)}
+                    >
+                      <option value="google">Google Calendar</option>
+                      <option value="outlook">Outlook Calendar</option>
+                    </select>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+                    {settings.calendarProvider === 'google' 
+                      ? 'Google Calendar events will be created automatically when you create tasks.'
+                      : 'Outlook Calendar events will be sent to your email as .ics files.'}
+                  </div>
+                  {settings.calendarProvider === 'google' && user?.typeCalendar !== 'google' && (
+                    <div style={{ marginTop: 12 }}>
+                      <button 
+                        onClick={handleConnectGoogle}
+                        style={{
+                          backgroundColor: '#4285f4',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          fontSize: 14
+                        }}
+                      >
+                        Connect Google Calendar
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

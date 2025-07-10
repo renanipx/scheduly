@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['google', 'outlook', null],
     default: null
+  },
+  googleAccessToken: {
+    type: String,
+    default: null
+  },
+  googleRefreshToken: {
+    type: String,
+    default: null
   }
 });
 
