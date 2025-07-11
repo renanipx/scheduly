@@ -15,19 +15,41 @@ import './assets/AIAssistant.css';
 import { useUser } from './context/UserContext';
 
 function App() {
-  const { user } = useUser();
+  const { user, loading } = useUser();
+  
   useEffect(() => {
-    let theme = localStorage.getItem('theme');
-    if (user && user.theme) {
-      theme = user.theme;
-      localStorage.setItem('theme', theme);
+    if (!loading) {
+      if (user) {
+        let theme = localStorage.getItem('theme');
+        if (user.theme) {
+          theme = user.theme;
+          localStorage.setItem('theme', theme);
+        }
+        if (theme === 'dark') {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
     }
-    if (theme === 'dark') {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [user]);
+  }, [user, loading]);
+
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '16px',
+        color: '#666'
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <Router>
