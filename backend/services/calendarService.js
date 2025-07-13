@@ -172,6 +172,14 @@ const createOutlookCalendarEvent = async (user, taskData) => {
       throw new Error('Email credentials not configured');
     }
 
+    if (!user.email) {
+      throw new Error('User email is required for Outlook calendar integration');
+    }
+
+    const isOutlookEmail = user.email.toLowerCase().includes('outlook.com') || 
+                          user.email.toLowerCase().includes('hotmail.com') ||
+                          user.email.toLowerCase().includes('live.com');
+
     // Parse task date and time
     const taskDate = new Date(taskData.date);
     const [startHour, startMinute] = taskData.startTime.split(':').map(Number);
@@ -203,7 +211,7 @@ const createOutlookCalendarEvent = async (user, taskData) => {
       'END:VCALENDAR'
     ].join('\r\n');
 
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -211,28 +219,52 @@ const createOutlookCalendarEvent = async (user, taskData) => {
       }
     });
 
+    const emailInstructions = isOutlookEmail 
+      ? `<p><strong>To add to your Outlook calendar:</strong></p>
+         <ol>
+           <li>Download the "calendar-event.ics" attachment</li>
+           <li>Double-click the downloaded file</li>
+           <li>Outlook will open and ask if you want to add the event</li>
+           <li>Click "Yes" to add it to your calendar</li>
+         </ol>
+         <p><em>Note: If Outlook doesn't open automatically, right-click the file and select "Open with" → "Outlook"</em></p>`
+      : `<p><strong>To add to your calendar:</strong></p>
+         <ol>
+           <li>Download the "calendar-event.ics" attachment</li>
+           <li>Open your calendar application (Google Calendar, Apple Calendar, etc.)</li>
+           <li>Look for "Import" or "Add event from file" option</li>
+           <li>Select the downloaded .ics file</li>
+           <li>The event will be added to your calendar</li>
+         </ol>`;
+
     const mailOptions = {
       from: `"Chronoly" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: `Calendar Event: ${taskData.title}`,
+      subject: `📅 New Calendar Event: ${taskData.title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #764ba2;">New Calendar Event Created</h2>
+          <h2 style="color: #764ba2;">📅 New Event Created</h2>
           <p>A new calendar event has been created for your task:</p>
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #764ba2;">
             <h3 style="margin-top: 0; color: #333;">${taskData.title}</h3>
-            <p><strong>Date:</strong> ${taskDate.toLocaleDateString('pt-BR')}</p>
-            <p><strong>Time:</strong> ${taskData.startTime} - ${taskData.endTime}</p>
-            ${taskData.description ? `<p><strong>Description:</strong> ${taskData.description}</p>` : ''}
+            <p><strong>📅 Date:</strong> ${taskDate.toLocaleDateString('en-US')}</p>
+            <p><strong>⏰ Time:</strong> ${taskData.startTime} - ${taskData.endTime}</p>
+            ${taskData.description ? `<p><strong>📝 Description:</strong> ${taskData.description}</p>` : ''}
           </div>
-          <p style="color: #666; font-size: 14px;">
-            This event has been added to your Outlook calendar. You can also import the attached .ics file to other calendar applications.
+          ${emailInstructions}
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            <em>This email was sent automatically by the Chronoly system. 
+            The attached file (.ics) is compatible with most calendar applications.</em>
           </p>
+          <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <p style="margin: 0; color: #856404;"><strong>⚠️ Important:</strong> The event is not automatically added to your calendar. 
+            You need to manually import the attached .ics file following the instructions above.</p>
+          </div>
         </div>
       `,
       attachments: [
         {
-          filename: 'calendar-event.ics',
+          filename: `calendar-event-${taskData.title.replace(/[^a-zA-Z0-9]/g, '-')}.ics`,
           content: icsContent,
           contentType: 'text/calendar; method=REQUEST'
         }
@@ -243,12 +275,16 @@ const createOutlookCalendarEvent = async (user, taskData) => {
 
     return {
       success: true,
-      provider: 'outlook'
+      provider: 'outlook',
+      emailSent: true,
+      userEmail: user.email,
+      isOutlookEmail: isOutlookEmail
     };
   } catch (error) {
     console.error('Error creating Outlook Calendar event:', {
       error: error.message,
       userId: user?._id,
+      userEmail: user?.email,
       taskTitle: taskData?.title
     });
     return {

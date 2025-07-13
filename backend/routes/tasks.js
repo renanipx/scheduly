@@ -93,14 +93,10 @@ router.post('/', authenticate, async (req, res) => {
           calendarAuthRequired = true;
           calendarAuthUrl = calendarResult.authUrl;
         }
-        
-        // Log para debug
       } catch (cerr) {
         console.error('Calendar event creation error:', cerr);
         calendarNotification = false;
       }
-    } else {
-      // Removido: console.log('Calendar event not created - missing date/time:', {...});
     }
     
     res.status(201).json({
