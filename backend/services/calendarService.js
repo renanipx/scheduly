@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const nodemailer = require('nodemailer');
+const User = require('../models/User');
 
 // Google Calendar API setup
 const getGoogleAuth = () => {
@@ -11,11 +12,94 @@ const getGoogleAuth = () => {
   return oauth2Client;
 };
 
-// Create Google Calendar event
+// Try to automatically connect Google Calendar using existing Google ID
+const tryAutoConnectGoogleCalendar = async (user) => {
+  try {
+
+    if (!user.googleId) {
+      throw new Error('User does not have Google ID - cannot auto-connect');
+    }
+
+    // Create OAuth2 client
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    // Try to get tokens using Google ID (this is a simplified approach)
+    // In a real implementation, you might need to use a different approach
+    // such as using service account or stored refresh tokens
+    
+    // For now, we'll return false to indicate auto-connect is not possible
+    // and the user needs to manually connect
+    return {
+      success: false,
+      error: 'Auto-connect requires manual Google Calendar authorization',
+      requiresManualAuth: true
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      requiresManualAuth: true
+    };
+  }
+};
+
+// Create Google Calendar event with auto-connect attempt
 const createGoogleCalendarEvent = async (user, taskData) => {
   try {
-    if (!user.googleAccessToken) {
-      throw new Error('Google access token not available');
+    // Verificações mais detalhadas
+    if (!user) {
+      throw new Error('User object is required');
+    }
+    
+    // If user doesn't have tokens, try to auto-connect
+    if (!user.googleAccessToken || !user.googleRefreshToken) {
+      
+      const autoConnectResult = await tryAutoConnectGoogleCalendar(user);
+      
+      if (!autoConnectResult.success) {
+        // If auto-connect fails, try to create a one-time auth URL
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          process.env.GOOGLE_REDIRECT_URI
+        );
+
+        const scopes = [
+          'https://www.googleapis.com/auth/calendar',
+          'https://www.googleapis.com/auth/calendar.events'
+        ];
+
+        const authUrl = oauth2Client.generateAuthUrl({
+          access_type: 'offline',
+          scope: scopes,
+          prompt: 'consent',
+          state: JSON.stringify({
+            userId: user._id.toString(),
+            taskData: taskData,
+            returnTo: 'task-creation'
+          })
+        });
+
+        return {
+          success: false,
+          error: 'Google Calendar authorization required',
+          provider: 'google',
+          requiresAuth: true,
+          authUrl: authUrl,
+          message: 'Please authorize Google Calendar access to create events automatically'
+        };
+      }
+      
+      // If auto-connect succeeded, update user tokens
+      user.googleAccessToken = autoConnectResult.accessToken;
+      user.googleRefreshToken = autoConnectResult.refreshToken;
+      user.typeCalendar = 'google';
+      await user.save();
     }
 
     const auth = getGoogleAuth();
@@ -68,7 +152,11 @@ const createGoogleCalendarEvent = async (user, taskData) => {
       provider: 'google'
     };
   } catch (error) {
-    console.error('Error creating Google Calendar event:', error);
+    console.error('Error creating Google Calendar event:', {
+      error: error.message,
+      userId: user?._id,
+      taskTitle: taskData?.title
+    });
     return {
       success: false,
       error: error.message,
@@ -158,7 +246,11 @@ const createOutlookCalendarEvent = async (user, taskData) => {
       provider: 'outlook'
     };
   } catch (error) {
-    console.error('Error creating Outlook Calendar event:', error);
+    console.error('Error creating Outlook Calendar event:', {
+      error: error.message,
+      userId: user?._id,
+      taskTitle: taskData?.title
+    });
     return {
       success: false,
       error: error.message,
@@ -170,32 +262,57 @@ const createOutlookCalendarEvent = async (user, taskData) => {
 // Main function to create calendar event based on user's calendar provider
 const createCalendarEvent = async (user, taskData) => {
   try {
-    if (!user.typeCalendar) {
+    // Verificações mais robustas
+    if (!user) {
       return {
         success: false,
-        error: 'No calendar provider configured',
+        error: 'User object is required',
         provider: null
       };
     }
 
-    switch (user.typeCalendar) {
-      case 'google':
-        return await createGoogleCalendarEvent(user, taskData);
-      case 'outlook':
-        return await createOutlookCalendarEvent(user, taskData);
-      default:
-        return {
-          success: false,
-          error: 'Unsupported calendar provider',
-          provider: user.typeCalendar
-        };
+    if (!taskData.title || !taskData.date || !taskData.startTime || !taskData.endTime) {
+      return {
+        success: false,
+        error: 'Missing required task data (title, date, startTime, endTime)',
+        provider: null
+      };
     }
+
+    // If no calendar provider is set, try Google Calendar first (since user has Google ID)
+    if (!user.typeCalendar && user.googleId) {
+      return await createGoogleCalendarEvent(user, taskData);
+    }
+
+    // If calendar provider is set, use it
+    if (user.typeCalendar) {
+      switch (user.typeCalendar) {
+        case 'google':
+          return await createGoogleCalendarEvent(user, taskData);
+        case 'outlook':
+          return await createOutlookCalendarEvent(user, taskData);
+        default:
+          return {
+            success: false,
+            error: 'Unsupported calendar provider',
+            provider: user.typeCalendar
+          };
+      }
+    }
+
+    // If no Google ID and no calendar provider, try Outlook
+    return await createOutlookCalendarEvent(user, taskData);
+
   } catch (error) {
-    console.error('Error creating calendar event:', error);
+    console.error('Error creating calendar event:', {
+      error: error.message,
+      userId: user?._id,
+      provider: user?.typeCalendar
+    });
     return {
       success: false,
       error: error.message,
-      provider: user.typeCalendar
+      provider: user?.typeCalendar
     };
   }
 };
@@ -203,5 +320,6 @@ const createCalendarEvent = async (user, taskData) => {
 module.exports = {
   createCalendarEvent,
   createGoogleCalendarEvent,
-  createOutlookCalendarEvent
+  createOutlookCalendarEvent,
+  tryAutoConnectGoogleCalendar
 }; 

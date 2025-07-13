@@ -15,8 +15,6 @@ const sendPasswordResetEmail = async (email, resetToken) => {
 
   const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
   const resetUrl = `${baseUrl}/#/reset-password/${resetToken}`;
-  
-  console.log('Reset URL:', resetUrl);
 
   const mailOptions = {
     from: `"Chronoly" <${process.env.EMAIL_USER}>`,

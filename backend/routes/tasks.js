@@ -50,6 +50,8 @@ router.post('/', authenticate, async (req, res) => {
     
     let whatsappNotification = false;
     let calendarNotification = false;
+    let calendarAuthRequired = false;
+    let calendarAuthUrl = null;
     
     // Send WhatsApp notification if configured
     if (req.user.whatsappNumber) {
@@ -65,14 +67,17 @@ router.post('/', authenticate, async (req, res) => {
         await sendWhatsAppMessage(req.user.whatsappNumber, msg);
         whatsappNotification = true;
       } catch (werr) {
+        console.error('WhatsApp notification error:', werr);
         whatsappNotification = false;
       }
     }
     
-    // Create calendar event if configured
-    if (req.user.typeCalendar && date && startTime && endTime) {
+    // Create calendar event if we have date and time
+    if (date && startTime && endTime) {
       try {
-        const user = await User.findById(req.user._id);
+        // Buscar usuário com todos os campos necessários
+        const user = await User.findById(req.user._id).select('+googleAccessToken +googleRefreshToken +typeCalendar +email +googleId');
+        
         const calendarResult = await createCalendarEvent(user, {
           title,
           description,
@@ -80,19 +85,33 @@ router.post('/', authenticate, async (req, res) => {
           startTime,
           endTime
         });
+        
         calendarNotification = calendarResult.success;
+        
+        // Check if authorization is required
+        if (!calendarResult.success && calendarResult.requiresAuth) {
+          calendarAuthRequired = true;
+          calendarAuthUrl = calendarResult.authUrl;
+        }
+        
+        // Log para debug
       } catch (cerr) {
         console.error('Calendar event creation error:', cerr);
         calendarNotification = false;
       }
+    } else {
+      // Removido: console.log('Calendar event not created - missing date/time:', {...});
     }
     
     res.status(201).json({
       ...task.toObject(),
       whatsappNotification,
-      calendarNotification
+      calendarNotification,
+      calendarAuthRequired,
+      calendarAuthUrl
     });
   } catch (err) {
+    console.error('Task creation error:', err);
     res.status(400).json({ error: 'Error creating task' });
   }
 });

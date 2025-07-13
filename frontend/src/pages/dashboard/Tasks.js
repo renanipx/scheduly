@@ -24,6 +24,13 @@ const Tasks = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+  
+  // New states for calendar authorization
+  const [showCalendarAuthModal, setShowCalendarAuthModal] = useState(false);
+  const [calendarAuthUrl, setCalendarAuthUrl] = useState('');
+  const [calendarAuthMessage, setCalendarAuthMessage] = useState('');
+  const [pendingTaskData, setPendingTaskData] = useState(null);
+  
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const selectedTaskId = params.get('selected');
@@ -117,6 +124,27 @@ const Tasks = () => {
     };
   }, []);
 
+  // Check for calendar auth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const calendarAuth = urlParams.get('calendar_auth');
+    const eventCreated = urlParams.get('event_created');
+    const authError = urlParams.get('error');
+    
+    if (calendarAuth === 'success') {
+      if (eventCreated === 'true') {
+        // Show success message
+        setError('');
+        // You could add a success state here
+      } else if (authError) {
+        setError(`Calendar authorization failed: ${decodeURIComponent(authError)}`);
+      }
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -175,9 +203,22 @@ const Tasks = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`
-            }
+            },
+            validateStatus: () => true // Permite tratar respostas de erro
           }
         );
+        
+        // Redirecionamento automático para o Google se precisar autorizar
+        if (response.data.calendarAuthRequired && response.data.calendarAuthUrl) {
+          window.location.href = response.data.calendarAuthUrl;
+          return;
+        }
+        
+        if (response.status >= 400) {
+          setError(response.data?.error || 'Error creating task.');
+          return;
+        }
+        
         setTasks([...tasks, response.data]);
         
         // Show success message with notifications
@@ -189,8 +230,8 @@ const Tasks = () => {
           successMessage += ' 📅 Calendar event created.';
         }
         setError(''); // Clear any previous errors
-        // You could add a success state here if needed
       }
+      
       // Limpar formulário após salvar/criar
       setTitle('');
       setDescription('');
@@ -410,6 +451,20 @@ const Tasks = () => {
     } catch (err) {
       setError('Error deleting task.');
     }
+  };
+
+  // Handle calendar authorization
+  const handleCalendarAuth = () => {
+    if (calendarAuthUrl) {
+      window.location.href = calendarAuthUrl;
+    }
+  };
+
+  const handleCancelCalendarAuth = () => {
+    setShowCalendarAuthModal(false);
+    setCalendarAuthUrl('');
+    setCalendarAuthMessage('');
+    setPendingTaskData(null);
   };
 
   return (
@@ -726,6 +781,43 @@ const Tasks = () => {
             <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
               <button onClick={confirmDeleteTask} className="delete-btn">Yes, delete</button>
               <button onClick={cancelDeleteTask} className="task-form-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Calendar Authorization Modal */}
+      {showCalendarAuthModal && (
+        <div className="delete-confirm-modal">
+          <div className="delete-confirm-content">
+            <h3 style={{ margin: '0 0 16px 0', color: '#3c366b' }}>
+              📅 Google Calendar Authorization
+            </h3>
+            <p style={{ fontSize: '1rem', color: '#6b7280', marginBottom: '24px', textAlign: 'center' }}>
+              {calendarAuthMessage}
+            </p>
+            <p style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '24px', textAlign: 'center' }}>
+              To create calendar events automatically, we need your permission to access Google Calendar.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                onClick={handleCancelCalendarAuth}
+                className="task-form-cancel"
+                style={{ minWidth: '100px' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCalendarAuth}
+                className="task-form-submit"
+                style={{ 
+                  minWidth: '140px',
+                  backgroundColor: '#4285f4',
+                  color: 'white'
+                }}
+              >
+                Authorize Google Calendar
+              </button>
             </div>
           </div>
         </div>

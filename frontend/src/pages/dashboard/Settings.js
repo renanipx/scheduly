@@ -76,14 +76,12 @@ const Settings = () => {
     const googleAuth = urlParams.get('google_auth');
     
     if (googleAuth === 'success') {
-      // Update local user state to reflect Google Calendar connection
-      setUser(prevUser => ({
-        ...prevUser,
-        typeCalendar: 'google',
-        googleAccessToken: 'connected' // Placeholder to indicate connection
-      }));
-      
-      // Clean up URL
+      const token = localStorage.getItem('token');
+      axios.get(process.env.REACT_APP_BACKEND_URL + '/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => {
+        setUser(res.data);
+      }).catch(() => {});
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -154,7 +152,6 @@ const Settings = () => {
 
   const handleSaveSettings = () => {
     // Here you would typically save to backend
-    console.log('Saving settings:', settings);
     setShowSettingsForm(false);
     setCurrentSetting(null);
   };
