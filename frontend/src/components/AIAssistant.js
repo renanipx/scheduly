@@ -65,6 +65,48 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
       let extractedData = null;
       let aiResponse = {};
 
+      // --- New: Check for report request in English ---
+      if (currentContext === 'tasks' && /report|summary|list/i.test(message)) {
+        // Try to extract month, week, or date range
+        const reportParams = extractReportParams(message);
+        const format = extractReportFormat(message); // new helper
+        if (reportParams) {
+          try {
+            const token = localStorage.getItem('token');
+            let url = process.env.REACT_APP_BACKEND_URL + '/api/tasks/report?';
+            if (reportParams.month && reportParams.year) {
+              url += `month=${reportParams.month}&year=${reportParams.year}`;
+            } else if (reportParams.startDate && reportParams.endDate) {
+              url += `startDate=${reportParams.startDate}&endDate=${reportParams.endDate}`;
+            }
+            if (format) {
+              url += `&format=${format}`;
+            }
+            const response = await fetch(url, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Failed to fetch report');
+            aiResponse = {
+              type: 'assistant',
+              content: `✅ Your ${format ? format.toUpperCase() : 'XLSX'} report is being generated and will be sent to your registered email.\n\n${data.message}`,
+              timestamp: new Date()
+            };
+          } catch (err) {
+            aiResponse = {
+              type: 'assistant',
+              content: `❌ Error generating report. Please try again later.\n${err.message}`,
+              timestamp: new Date()
+            };
+          }
+          setAiMessages(prev => [...prev, aiResponse]);
+          setIsProcessingAI(false);
+          setAiMessage('');
+          return;
+        }
+      }
+      // --- End new report logic ---
+
       switch (currentContext) {
         case 'tasks':
           extractedData = extractTaskData(message);
@@ -516,5 +558,62 @@ Just describe your task and I'll create it automatically!`;
     </>
   );
 };
+
+// Helper to extract report parameters from English message
+function extractReportParams(message) {
+  // Month names in English
+  const months = [
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
+  const lower = message.toLowerCase();
+  // Match month (e.g., 'report for july' or 'july report')
+  const monthMatch = lower.match(/(?:for|of)?\s*(january|february|march|april|may|june|july|august|september|october|november|december)\s*(\d{4})?/);
+  if (monthMatch) {
+    const month = months.indexOf(monthMatch[1]) + 1;
+    let year = new Date().getFullYear();
+    if (monthMatch[2]) year = parseInt(monthMatch[2], 10);
+    return { month, year };
+  }
+  // Match week (e.g., 'week of july 10', 'week of 2023-07-10')
+  const weekMatch = lower.match(/week of (\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4}|[a-z]+ \d{1,2})/);
+  if (weekMatch) {
+    let baseDate = null;
+    if (/\d{4}-\d{2}-\d{2}/.test(weekMatch[1])) {
+      baseDate = new Date(weekMatch[1]);
+    } else if (/\d{1,2}\/\d{1,2}\/\d{4}/.test(weekMatch[1])) {
+      const [m, d, y] = weekMatch[1].split('/').map(Number);
+      baseDate = new Date(y, m - 1, d);
+    } else {
+      // e.g., 'july 10'
+      const [monthName, day] = weekMatch[1].split(' ');
+      const monthIdx = months.indexOf(monthName);
+      if (monthIdx >= 0) {
+        baseDate = new Date(new Date().getFullYear(), monthIdx, parseInt(day, 10));
+      }
+    }
+    if (baseDate) {
+      const start = new Date(baseDate);
+      start.setDate(baseDate.getDate() - baseDate.getDay()); // Sunday
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6); // Saturday
+      return { startDate: start.toISOString().slice(0, 10), endDate: end.toISOString().slice(0, 10) };
+    }
+  }
+  // Match custom range (e.g., 'from 2023-07-01 to 2023-07-31')
+  const rangeMatch = lower.match(/from (\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/);
+  if (rangeMatch) {
+    return { startDate: rangeMatch[1], endDate: rangeMatch[2] };
+  }
+  return null;
+}
+
+// Helper to extract report format from English message
+function extractReportFormat(message) {
+  const lower = message.toLowerCase();
+  if (/(pdf)/.test(lower)) return 'pdf';
+  if (/(xlsx|excel|spreadsheet)/.test(lower)) return 'xlsx';
+  return null;
+}
 
 export default AIAssistant; 
