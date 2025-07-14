@@ -67,9 +67,8 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
 
       // --- New: Check for report request in English ---
       if (currentContext === 'tasks' && /report|summary|list/i.test(message)) {
-        // Try to extract month, week, or date range
         const reportParams = extractReportParams(message);
-        const format = extractReportFormat(message); // new helper
+        const format = extractReportFormat(message);
         if (reportParams) {
           try {
             const token = localStorage.getItem('token');
@@ -85,11 +84,31 @@ const AIAssistant = ({ onTaskCreated, onEventCreated, onSettingsChanged }) => {
             const response = await fetch(url, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Failed to fetch report');
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.error || 'Failed to fetch report');
+            }
+            // Download file automatically
+            const blob = await response.blob();
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'report.' + (format === 'pdf' ? 'pdf' : 'xlsx');
+            if (contentDisposition) {
+              const match = contentDisposition.match(/filename="?([^";]+)"?/);
+              if (match) filename = match[1];
+            }
+            const urlBlob = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = urlBlob;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(urlBlob);
+              document.body.removeChild(a);
+            }, 100);
             aiResponse = {
               type: 'assistant',
-              content: `✅ Your ${format ? format.toUpperCase() : 'XLSX'} report is being generated and will be sent to your registered email.\n\n${data.message}`,
+              content: `✅ Your ${format ? format.toUpperCase() : 'XLSX'} report is being downloaded and was also sent to your registered email.`,
               timestamp: new Date()
             };
           } catch (err) {

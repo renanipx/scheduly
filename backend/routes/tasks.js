@@ -187,43 +187,100 @@ router.get('/report', authenticate, async (req, res) => {
     if (!tasks.length) {
       return res.status(404).json({ error: 'No tasks found for the selected period' });
     }
-    // Prepare file
     let buffer, filename, mimeType;
     if (format === 'pdf') {
-      // PDF generation
+      // PDF generation 
       const doc = new PDFDocument({ margin: 30, size: 'A4' });
       let bufs = [];
       doc.on('data', d => bufs.push(d));
       doc.on('end', async () => {
         buffer = Buffer.concat(bufs);
         await sendReportEmail(req.user.email, buffer, filename, mimeType, periodLabel);
-        res.json({ message: 'Report sent to your email!' });
+        res.setHeader('Content-Disposition', `attachment; filename=\"${filename}\"`);
+        res.setHeader('Content-Type', mimeType);
+        res.send(buffer);
       });
       filename = `Task-Report-${periodLabel.replace(/\s/g, '-')}.pdf`;
       mimeType = 'application/pdf';
+
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const logoPath = path.join(__dirname, '../../frontend/public/logo.png');
+        if (fs.existsSync(logoPath)) {
+          doc.image(logoPath, doc.page.width / 2 - 40, 20, { width: 80 });
+          doc.moveDown(2.5);
+        } else {
+          doc.moveDown(2);
+        }
+      } catch (e) {
+        doc.moveDown(2);
+      }
+
       doc.fontSize(18).text('Task Report', { align: 'center' });
       doc.moveDown();
       doc.fontSize(12).text(`Period: ${periodLabel}`);
-      doc.moveDown();
-      // Table header
-      doc.font('Helvetica-Bold').text('Title', 50, doc.y, { continued: true, width: 120 });
-      doc.text('Status', 180, doc.y, { continued: true, width: 70 });
-      doc.text('Date', 250, doc.y, { continued: true, width: 80 });
-      doc.text('Start', 330, doc.y, { continued: true, width: 60 });
-      doc.text('End', 390, doc.y, { width: 60 });
+      doc.moveDown(1.5);
+
+      // Table
+      const tableTop = doc.y;
+      const colWidths = [140, 70, 80, 60, 60];
+      const headers = ['Title', 'Status', 'Date', 'Start', 'End'];
+      const tableLeft = doc.x;
+      let x = tableLeft;
+      let y = tableTop;
+      // Header
+      doc.font('Helvetica-Bold');
+      for (let i = 0; i < headers.length; i++) {
+        doc.rect(x, y, colWidths[i], 24).fillAndStroke('#ddeeff', '#000');
+        doc.fillColor('#000').text(headers[i], x + 4, y + 6, { width: colWidths[i] - 8, align: 'left' });
+        x += colWidths[i];
+      }
       doc.font('Helvetica');
-      doc.moveDown(0.5);
-      tasks.forEach(task => {
-        doc.text(task.title, 50, doc.y, { continued: true, width: 120 });
-        doc.text(task.status, 180, doc.y, { continued: true, width: 70 });
-        doc.text((task.date || '').toISOString().slice(0, 10), 250, doc.y, { continued: true, width: 80 });
-        doc.text(task.startTime || '', 330, doc.y, { continued: true, width: 60 });
-        doc.text(task.endTime || '', 390, doc.y, { width: 60 });
+      y += 24;
+      // lines
+      tasks.forEach((task, idx) => {
+        let x = tableLeft; 
+        const rowColor = idx % 2 === 0 ? '#f7faff' : '#ffffff';
+        // Title
+        doc.rect(x, y, colWidths[0], 20).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.title, x + 4, y + 5, { width: colWidths[0] - 8, align: 'left', ellipsis: true });
+        x += colWidths[0];
+        // Status
+        doc.rect(x, y, colWidths[1], 20).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.status, x + 4, y + 5, { width: colWidths[1] - 8, align: 'left', ellipsis: true });
+        x += colWidths[1];
+        // Date
+        doc.rect(x, y, colWidths[2], 20).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text((task.date || '').toISOString().slice(0, 10), x + 4, y + 5, { width: colWidths[2] - 8, align: 'left', ellipsis: true });
+        x += colWidths[2];
+        // Start
+        doc.rect(x, y, colWidths[3], 20).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.startTime || '', x + 4, y + 5, { width: colWidths[3] - 8, align: 'left', ellipsis: true });
+        x += colWidths[3];
+        // End
+        doc.rect(x, y, colWidths[4], 20).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.endTime || '', x + 4, y + 5, { width: colWidths[4] - 8, align: 'left', ellipsis: true });
+        y += 20;
+        if (y > doc.page.height - 50) {
+          doc.addPage();
+          y = doc.y;
+        }
       });
       doc.end();
       return;
     } else {
       // XLSX generation
+      tasks.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateB - dateA; 
+        }
+        const timeA = a.startTime ? a.startTime.replace(':', '') : '0000';
+        const timeB = b.startTime ? b.startTime.replace(':', '') : '0000';
+        return parseInt(timeB) - parseInt(timeA);
+      });
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet('Tasks');
       sheet.columns = [
@@ -242,11 +299,22 @@ router.get('/report', authenticate, async (req, res) => {
           endTime: task.endTime || ''
         });
       });
+      // Destacar header
+      sheet.getRow(1).eachCell(cell => {
+        cell.font = { bold: true };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFDDEEFF' }
+        };
+      });
       buffer = await workbook.xlsx.writeBuffer();
       filename = `Task-Report-${periodLabel.replace(/\s/g, '-')}.xlsx`;
       mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       await sendReportEmail(req.user.email, buffer, filename, mimeType, periodLabel);
-      return res.json({ message: 'Report sent to your email!' });
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', mimeType);
+      return res.send(buffer);
     }
   } catch (err) {
     console.error('Report export error:', err);
