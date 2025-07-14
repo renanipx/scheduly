@@ -33,4 +33,10 @@ Chronoly is an AI-powered scheduling and task management platform designed to he
 - **Export Reports**: Ask the assistant for a report (week/month, PDF/XLSX). The file will be downloaded and sent to your email.
 
 ## License
-MIT 
+MIT
+
+## Author
+
+Developed by Renan Campos Cavalcanti  
+GitHub: [https://github.com/renanipx/](https://github.com/renanipx/)  
+LinkedIn: [https://www.linkedin.com/in/renanccavalcanti/](https://www.linkedin.com/in/renanccavalcanti/) 
