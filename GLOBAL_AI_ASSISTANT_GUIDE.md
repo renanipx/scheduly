@@ -53,7 +53,8 @@ The AI Assistant is always available as a **floating action button (🤖)** in t
 
 **Example commands:**
 ```
-✅ "Change my password"
+✅ "Change my password"  
+_Note: The AI Assistant will provide you with step-by-step instructions on how to change your password in the Settings page, but will not change your password automatically. You need to follow the instructions to complete the process yourself._
 ✅ "Update my email preferences"
 ✅ "Modify notification settings"
 ✅ "Change theme to dark mode"
