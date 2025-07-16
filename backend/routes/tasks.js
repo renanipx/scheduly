@@ -224,7 +224,7 @@ router.get('/report', authenticate, async (req, res) => {
 
       // Table
       const tableTop = doc.y;
-      const colWidths = [140, 70, 80, 60, 60];
+      const colWidths = [200, 70, 80, 60, 60];
       const headers = ['Title', 'Status', 'Date', 'Start', 'End'];
       const tableLeft = doc.x;
       let x = tableLeft;
@@ -239,34 +239,37 @@ router.get('/report', authenticate, async (req, res) => {
       doc.font('Helvetica');
       y += 24;
       // lines
+      const rowHeight = 30;
       tasks.forEach((task, idx) => {
         let x = tableLeft; 
         const rowColor = idx % 2 === 0 ? '#f7faff' : '#ffffff';
         // Title
-        doc.rect(x, y, colWidths[0], 20).fillAndStroke(rowColor, '#aaa');
-        doc.fillColor('#000').text(task.title, x + 4, y + 5, { width: colWidths[0] - 8, align: 'left', ellipsis: true });
+        doc.rect(x, y, colWidths[0], rowHeight).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.title, x + 4, y + 8, { width: colWidths[0] - 8, align: 'left', ellipsis: true });
         x += colWidths[0];
         // Status
-        doc.rect(x, y, colWidths[1], 20).fillAndStroke(rowColor, '#aaa');
-        doc.fillColor('#000').text(task.status, x + 4, y + 5, { width: colWidths[1] - 8, align: 'left', ellipsis: true });
+        doc.rect(x, y, colWidths[1], rowHeight).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.status, x + 4, y + 8, { width: colWidths[1] - 8, align: 'left', ellipsis: true });
         x += colWidths[1];
         // Date
-        doc.rect(x, y, colWidths[2], 20).fillAndStroke(rowColor, '#aaa');
-        doc.fillColor('#000').text((task.date || '').toISOString().slice(0, 10), x + 4, y + 5, { width: colWidths[2] - 8, align: 'left', ellipsis: true });
+        doc.rect(x, y, colWidths[2], rowHeight).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text((task.date || '').toISOString().slice(0, 10), x + 4, y + 8, { width: colWidths[2] - 8, align: 'left', ellipsis: true });
         x += colWidths[2];
         // Start
-        doc.rect(x, y, colWidths[3], 20).fillAndStroke(rowColor, '#aaa');
-        doc.fillColor('#000').text(task.startTime || '', x + 4, y + 5, { width: colWidths[3] - 8, align: 'left', ellipsis: true });
+        doc.rect(x, y, colWidths[3], rowHeight).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.startTime || '', x + 4, y + 8, { width: colWidths[3] - 8, align: 'left', ellipsis: true });
         x += colWidths[3];
         // End
-        doc.rect(x, y, colWidths[4], 20).fillAndStroke(rowColor, '#aaa');
-        doc.fillColor('#000').text(task.endTime || '', x + 4, y + 5, { width: colWidths[4] - 8, align: 'left', ellipsis: true });
-        y += 20;
+        doc.rect(x, y, colWidths[4], rowHeight).fillAndStroke(rowColor, '#aaa');
+        doc.fillColor('#000').text(task.endTime || '', x + 4, y + 8, { width: colWidths[4] - 8, align: 'left', ellipsis: true });
+        y += rowHeight;
         if (y > doc.page.height - 50) {
           doc.addPage();
           y = doc.y;
         }
       });
+      // Ajuste para garantir que o cursor fique após a tabela
+      doc.y = y + 10;
       doc.end();
       return;
     } else {
