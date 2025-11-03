@@ -10,8 +10,9 @@ Chronoly is an AI-powered scheduling and task management platform designed to he
 - **Google Calendar Sync**: (Optional) Integrate with Google Calendar for seamless event management.
 
 ## Tech Stack
-- **Backend**: Node.js, Express, MongoDB, Passport, PDFKit, ExcelJS, Nodemailer
+- **Backend**: Node.js, Express, MongoDB, Passport, PDFKit, ExcelJS, Nodemailer, Jest (testing)
 - **Frontend**: React, Context API, modern CSS
+- **DevOps**: Docker, Docker Compose
 
 ## Getting Started
 1. **Clone the repository**
@@ -21,8 +22,12 @@ Chronoly is an AI-powered scheduling and task management platform designed to he
 3. **Configure environment variables**
    - Copy `.env.example` to `.env` in `backend/` and set MongoDB URI, email credentials, etc.
 4. **Run the application**
-   - Backend: `npm start` (from `backend/`)
-   - Frontend: `npm start` (from `frontend/`)
+   - Using Docker: `docker-compose up` (from project root)
+   - Without Docker:
+     - Backend: `npm start` (from `backend/`)
+     - Frontend: `npm start` (from `frontend/`)
+5. **Run tests**
+   - Backend: `cd backend && npm test`
 
 ## Usage
 - **Login/Register**: Create an account or log in.
@@ -39,4 +44,4 @@ MIT
 
 Developed by Renan Campos Cavalcanti  
 GitHub: [https://github.com/renanipx/](https://github.com/renanipx/)  
-LinkedIn: [https://www.linkedin.com/in/renanccavalcanti/](https://www.linkedin.com/in/renanccavalcanti/) 
+LinkedIn: [https://www.linkedin.com/in/renanccavalcanti/](https://www.linkedin.com/in/renanccavalcanti/)
